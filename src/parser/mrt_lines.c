@@ -6,14 +6,13 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/14 21:29:28 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/16 21:32:43 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/17 20:23:32 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include <stdlib.h>
 #include <unistd.h>
 
-#define MRTLIB_IMPLEMENTATION
 #include <mrtlib.h>
 #include <mrt/error.h>
 #include <mrt/parser.h>

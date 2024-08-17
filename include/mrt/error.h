@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/15 18:26:23 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/16 21:19:45 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/17 21:12:28 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -19,9 +19,7 @@
 
 typedef enum e_mrt_error
 {
-	MRT_SUCCESS,
-	MRT_FAIL,
-	MRT_ERR_ALLOC,
+	MRT_ERR_ALLOC = 2,
 	MRT_ERR_MLX,
 	MRT_ERR_FILE,
 }	t_error;

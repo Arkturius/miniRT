@@ -1,0 +1,4 @@
+**/**.o
+.cache
+third-party
+compile_commands.json

@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/16 21:00:20 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/16 21:23:41 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/17 21:26:12 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -33,8 +33,11 @@ typedef double		t_f64;
 
 typedef t_u32		t_bool;
 
-# define MRT_TRUE	1
-# define MRT_FALSE	0
+# define MRT_TRUE		1
+# define MRT_FALSE		0
+
+# define MRT_FAIL		1
+# define MRT_SUCCESS	0
 
 typedef struct s_mrt_vec
 {
@@ -56,7 +59,6 @@ typedef union u_mrt_color
 	t_u32	argb;
 }	t_mrt_color;
 
-# ifdef MRTLIB_IMPLEMENTATION
 
 // MRT_MEM ****************************************************************** //
 
@@ -66,6 +68,9 @@ void	*mrt_memcpy(void *dst, const void *src, size_t n);
 
 size_t	mrt_strlen(const char *str);
 
-# endif
+
+int		mrt_strtoi(char *str, char **remain, int *err);
+
+float	mrt_strtof(char *str, char **remain, int *err);
 
 #endif // MRTLIB_H

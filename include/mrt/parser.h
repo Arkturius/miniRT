@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/13 20:08:34 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/16 21:33:03 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/17 21:54:46 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -127,5 +127,18 @@ t_error		mrt_parse_file(const char *filename, t_parser *parser);
 t_error		mrt_parse_line_list(t_line **list, t_parser *parser);
 
 t_error		mrt_parse_line_to_pobj(t_pheader **list, t_line *file);
+
+
+t_objtype	mrt_parse_pobj_type(char *str, char **remain);
+
+t_error		mrt_parse_pobj_light(t_pheader **obj, char *str, char **remain, int amb);
+
+t_error		mrt_parse_pobj_camera(t_pheader **obj, char *str, char **remain);
+
+t_error		mrt_parse_pobj_sphere(t_pheader **obj, char *str, char **remain);
+
+t_error		mrt_parse_pobj_plane(t_pheader **obj, char *str, char **remain);
+
+t_error		mrt_parse_pobj_cylinder(t_pheader **obj, char *str, char **remain);
 
 #endif	// PARSER_H

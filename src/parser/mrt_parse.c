@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/13 20:43:35 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/16 21:37:06 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/17 20:23:54 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -37,9 +37,6 @@ static t_error	mrt_parse_file_lines(t_parser *parser)
 	{
 		if (mrt_parse_line_list(&file, parser))
 			break ;
-
-		MRT_PRINT_LINES(file);
-
 		if (mrt_parse_line_to_pobj(&objs, file))
 			break ;	
 		return (MRT_SUCCESS);

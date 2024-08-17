@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/08/16 21:34:23 by rgramati         ###   ########.fr        #
+#    Updated: 2024/08/17 22:09:09 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,18 +16,21 @@
 
 NAME			=	miniRT	
 DEBUG			?=	0
+VERBOSE			=	1
 
 BUILD_DIR		=	build
 
 SRC				=	main.c					\
 					mrtlib/mrt_mem.c		\
 					mrtlib/mrt_str.c		\
+					mrtlib/mrt_tox.c		\
 					error/mrt_error.c		\
 					mlx/mrt_mlx.c			\
 					mlx/mrt_mlx_hooks.c		\
-					parser/mrt_parser.c		\
-					parser/mrt_line.c		\
-					parser/mrt_pobjs.c		
+					parser/mrt_parse.c		\
+					parser/mrt_parse_pobj.c	\
+					parser/mrt_lines.c		\
+					parser/mrt_pobjs.c
 
 SRC_DIR			=	src
 SRC				:=	$(addprefix $(SRC_DIR)/, $(SRC))
@@ -72,23 +75,26 @@ $(NAME):	$(MLX) $(OBJ)
 	@printf "$(BOLD)   >$(GREEN) miniRT built !\n$(RESET)"
 
 $(MLX):
-	@make -C $(MLX_DIR) -s -j all
+	@make --no-print-directory -C $(MLX_DIR) -s -j all
 
 $(OBJ_DIR)/%.o:	$(SRC_DIR)/%.c
 	@mkdir -p $(@D)
+ifeq ($(VERBOSE), 1)
 	@echo "$(BOLD)  🔩 building $(RESET)$(ITALIC)$@$(RESET)$(BOLD) from $(RESET)$(ITALIC)$^ ...$(RESET)"
+endif
 	@$(CC) $(CFLAGS) $(COPTS) -c $< -o $@
 
 remake:			oclean all
 
 clean:			oclean
-	@make -C $(MLX_DIR) clean
+	@make --no-print-directory -C $(MLX_DIR) clean
 
 oclean:
-	$(RM) $(OBJ_DIR) 
+	$(RM) $(OBJ_DIR)
+	$(RM) $(BUILD_DIR)
 
 fclean:			clean
-	@make -C $(MLX_DIR) fclean
+	@make --no-print-directory -C $(MLX_DIR) fclean
 	$(RM) $(NAME)
 
 LAZY_SCENE	=	scenes/minimalist.rt
