@@ -1,0 +1,22 @@
+[
+ {
+  "directory": "/nfs/homes/rgramati/Documents/42cursus/miniRT",
+  "arguments": [
+   "gcc",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-g3",
+   "-O3",
+   "-I",
+   "include",
+   "-I",
+   "third-party/MacroLibX/includes",
+   "-c",
+   "src/main.c",
+   "-o",
+   "build/obj/main.o"
+  ],
+  "file": "src/main.c"
+ }
+]
