@@ -1,25 +1,23 @@
 // ************************************************************************** //
 //                                                                            //
 //                                                        :::      ::::::::   //
-//   mrt_error.c                                        :+:      :+:    :+:   //
+//   mrt_chr.c                                          :+:      :+:    :+:   //
 //                                                    +:+ +:+         +:+     //
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
-//   Created: 2024/08/15 18:26:02 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/18 21:16:26 by rgramati         ###   ########.fr       //
+//   Created: 2024/08/18 13:56:24 by rgramati          #+#    #+#             //
+//   Updated: 2024/08/18 13:56:33 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
-#include <stdio.h>
-
 #include <mrtlib.h>
-#include <mrt/error.h>
 
-#define MRT_ERROR	"\033[31;1m/!\\ [Error] > \033[39;21;3m%s\n"
-
-t_error	mrt_error_print(t_error type, void *data)
+int	mrt_isspace(int c)
 {
-	if (type != MRT_SUCCESS)
-		printf(MRT_ERROR, (char *)data);
-	return (type);
+	return ((c >= 9 && c <= 13) || c == 32);
+}
+
+int	mrt_isdigit(int c)
+{
+	return (c >= '0' && c <= '9');
 }

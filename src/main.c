@@ -11,70 +11,59 @@
 /* ************************************************************************** */
 
 #include <unistd.h>
-#include <stdio.h> // TO REMOVE, include my printf
 
 #include <SDL2/SDL_scancode.h>
 
 #include <mlx.h>
-
-#define MRTLIB_IMPLEMENTATION 1
 
 #include <mrtlib.h>
 #include <mrt/error.h>
 #include <mrt/engine.h>
 #include <mrt/parser.h>
 
-// t_s32	main(int argc, char **argv)
-// {
-// 	(void) argc;
-//
-// 	t_mlx		application = {.app = NULL, .win = NULL, .img = NULL};
-// 	t_parser	parser;
-// 	t_u32		ret;
-//
-// 	ret = EXIT_FAILURE;
-// 	if (mrt_parse_file(argv[1], &parser))
-// 		return (ret);
-// 	if (!mrt_mlx_init(&application))
-// 	{
-// 		mrt_mlx_hook_setup(&application);
-// 		mlx_loop(application.app);
-// 		ret = EXIT_SUCCESS;
-// 	}
-// 	mrt_mlx_clean(&application);
-// 	return (ret);
-// }
-
-int main(void)
+static void	mrt_mlx_scene_render(t_mlx *mlx, t_scene *scene)
 {
-	char	*str = "A dwa kopdaw dawd";
-	char	*remain = NULL;
+	(void) scene;
+	mlx_loop(mlx->app);
+}
 
-	t_objtype	o;
+static t_error	mrt_scene_convert(t_parser *parser, t_scene *scene)
+{
+	scene->n_obj = parser->obj_count;
+	mrt_pobj_clean(parser->objs);
+	return (MRT_SUCCESS);
+}
 
-	o= mrt_parse_pobj_type(str, &remain);
-	printf("str [%s], type = %d\nremain = [%s]\n", str, o, remain);
+static void	mrt_scene_clean(t_scene *scene)
+{
+	(void) scene;
+}
 
-	str = "C dkawodko";
-	o= mrt_parse_pobj_type(str, &remain);
-	printf("str [%s], type = %d\nremain = [%s]\n", str, o, remain);
+t_s32	main(__attribute__((unused)) int argc, char **argv)
+{
+	t_mlx		mlx;
+	t_parser	parser;
+	t_scene		scene;
+	t_error		ret;
 
-	str = "L djawijdiowa";
-	o= mrt_parse_pobj_type(str, &remain);
-	printf("str [%s], type = %d\nremain = [%s]\n", str, o, remain);
-
-	str = "sp dhjwaidjiawjof";
-	o= mrt_parse_pobj_type(str, &remain);
-	printf("str [%s], type = %d\nremain = [%s]\n", str, o, remain);
-
-	str = "pl aiwjdfijawkiofj";
-	o= mrt_parse_pobj_type(str, &remain);
-	printf("str [%s], type = %d\nremain = [%s]\n", str, o, remain);
-
-	str = "cy aiwjdfijawkiofj";
-	o = mrt_parse_pobj_type(str, &remain);
-	printf("str [%s], type = %d\nremain = [%s]\n", str, o, remain);
-
-
-	MRT_END_IMPLEMENTATION
+	ret = MRT_FAIL;
+	mrt_bzero(&mlx, sizeof(t_mlx));
+	mrt_bzero(&parser, sizeof(t_parser));
+	mrt_bzero(&scene, sizeof(t_scene));
+	while (1)
+	{
+		if (mrt_parse_file(argv[1], &parser))
+			break ;
+		if (mrt_scene_convert(&parser, &scene))
+			break ;
+		if (mrt_mlx_init(&mlx))
+			break ;
+		mrt_mlx_hook_setup(&mlx);
+		mrt_mlx_scene_render(&mlx, &scene);
+		ret = MRT_SUCCESS;
+		break ;
+	}
+	mrt_scene_clean(&scene);
+	mrt_mlx_clean(&mlx);
+	return (ret);
 }

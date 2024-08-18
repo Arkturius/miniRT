@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/16 21:00:20 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/17 21:26:12 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/18 21:19:25 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -59,7 +59,6 @@ typedef union u_mrt_color
 	t_u32	argb;
 }	t_mrt_color;
 
-
 // MRT_MEM ****************************************************************** //
 
 void	*mrt_bzero(void *dst, size_t n);
@@ -68,6 +67,9 @@ void	*mrt_memcpy(void *dst, const void *src, size_t n);
 
 size_t	mrt_strlen(const char *str);
 
+int		mrt_isspace(int c);
+
+int		mrt_isdigit(int c);
 
 int		mrt_strtoi(char *str, char **remain, int *err);
 

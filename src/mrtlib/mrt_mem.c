@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/16 20:59:14 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/16 21:34:37 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/18 21:14:30 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -25,14 +25,14 @@ void	*mrt_memcpy(void *dst, const void *src, size_t n)
 	{
 		d8 = (t_u8 *) dst;
 		s8 = (t_u8 *) src;
-		while (((t_uptr)s8 & (sizeof *d64 - 1)) && n && n--)
+		while (((t_uptr)s8 & (sizeof(t_u64) - 1)) && n && n--)
 			*d8++ = *s8++;
 		d64 = (t_u64 *) d8;
 		s64 = (t_u64 *) s8;
-		while (n > sizeof *d64)
+		while (n >= sizeof(t_u64))
 		{
 			*d64++ = *s64++;
-			n -= sizeof *d64;
+			n -= sizeof(t_u64);
 		}
 		d8 = (t_u8 *) d64;
 		s8 = (t_u8 *) s64;
@@ -50,13 +50,13 @@ void	*mrt_bzero(void *dst, size_t n)
 	if (dst)
 	{
 		d8 = (t_u8 *) dst;
-		while (((t_uptr)d8 & (sizeof *d64 - 1)) && n && n--)
+		while (((t_uptr)d8 & (sizeof(t_u64) - 1)) && n && n--)
 			*d8++ = 0;
 		d64 = (t_u64 *) d8;
-		while (n > sizeof *d64)
+		while (n > sizeof(t_u64))
 		{
 			*d64++ = 0;
-			n -= sizeof *d64;
+			n -= sizeof(t_u64);
 		}
 		d8 = (t_u8 *) d64;
 		while (n && n--)

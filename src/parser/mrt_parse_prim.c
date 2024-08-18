@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/17 20:45:13 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/17 21:01:47 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/18 20:31:14 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -17,77 +17,80 @@
 t_error	mrt_parse_int(int *res, char *str, char **remain)
 {
 	t_s32	i;
-	t_error	err;
-	char	*tmp;
+	t_s32	err;
 
-	tmp = str;
-	i = mrt_strtoi(str, remain, &err);
+	i = mrt_strtoi(str, &str, &err);
 	if (err)
-	{
-		*remain = tmp;
 		return (err);
-	}
 	*res = i;
+	while (mrt_isspace(*str))
+		++str;
+	*remain = str;
 	return (MRT_SUCCESS);
 }
 
 t_error	mrt_parse_float(float *res, char *str, char **remain)
 {
 	t_f32	f;
-	t_error	err;
-	char	*tmp;
+	t_s32	err;
 
-	tmp = str;
-	f = mrt_strtof(str, remain, &err);
+	f = mrt_strtof(str, &str, &err);
 	if (err)
-	{
-		*remain = tmp;
 		return (err);
-	}
 	*res = f;
+	while (mrt_isspace(*str))
+		++str;
+	*remain = str;
 	return (MRT_SUCCESS);
 }
 
 t_error	mrt_parse_vec(t_mrt_vec *res, char *str, char **remain)
 {
 	t_mrt_vec	v;
-	char		*tmp;
 
-	tmp = str;
 	while (1)
 	{
-		if (mrt_parse_float(&v.x, str, remain))
+		if (mrt_parse_float(&v.x, str, &str))
 			break ;
-		if (mrt_parse_float(&v.y, str, remain))
+		++str;
+		if (mrt_parse_float(&v.y, str, &str))
 			break ;
-		if (mrt_parse_float(&v.z, str, remain))
+		++str;
+		if (mrt_parse_float(&v.z, str, &str))
 			break ;
 		v.w = 0;
 		*res = v;
+		while (mrt_isspace(*str))
+			++str;
+		*remain = str;
 		return (MRT_SUCCESS);
 	}
-	*remain = tmp;
 	return (MRT_FAIL);
 }
 
-t_error mrt_parse_color(t_mrt_color *res, char *str, char **remain)
+t_error	mrt_parse_color(t_mrt_color *res, char *str, char **remain)
 {
 	t_mrt_color	c;
-	char		*tmp;
+	int			tmp[3];
 
-	tmp = str;
 	while (1)
 	{
-		if (mrt_parse_int((int *)&c.r, str, remain))
+		if (mrt_parse_int(tmp, str, &str))
 			break ;
-		if (mrt_parse_int((int *)&c.g, str, remain))
+		++str;
+		if (mrt_parse_int(tmp + 1, str, &str))
 			break ;
-		if (mrt_parse_int((int *)&c.b, str, remain))
+		++str;
+		if (mrt_parse_int(tmp + 2, str, &str))
 			break ;
-		c.a = 255;
+		c = (t_mrt_color){.a = 255, .r = (t_u8) *(tmp),
+			.g = (t_u8) *(tmp + 1),
+			.b = (t_u8) *(tmp + 2)};
 		*res = c;
+		while (mrt_isspace(*str))
+			++str;
+		*remain = str;
 		return (MRT_SUCCESS);
 	}
-	*remain = tmp;
 	return (MRT_FAIL);
 }

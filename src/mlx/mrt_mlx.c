@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/13 19:29:29 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/16 21:33:38 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/18 21:15:34 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -55,6 +55,6 @@ t_u32	mrt_mlx_hook_setup(t_mlx *mlx)
 	if (!mlx)
 		return (MRT_FAIL);
 	mlx_on_event(mlx->app, mlx->win, MLX_KEYDOWN, mrt_mlx_hook_keydown, mlx);
-	mlx_on_event(mlx->app, mlx->win, MLX_WINDOW_EVENT, mrt_mlx_hook_window, mlx);
+	mlx_on_event(mlx->app, mlx->win, MLX_WINDOW_EVENT, mrt_mlx_hook_win, mlx);
 	return (MRT_SUCCESS);
 }

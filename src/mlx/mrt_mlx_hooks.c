@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/13 19:33:21 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/16 21:12:16 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/18 21:15:58 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -36,7 +36,7 @@ int	mrt_mlx_hook_keydown(int key, void *mlx_ptr)
 	return (0);
 }
 
-int	mrt_mlx_hook_window(int key, void *mlx_ptr)
+int	mrt_mlx_hook_win(int key, void *mlx_ptr)
 {
 	t_mlx	*mlx;
 

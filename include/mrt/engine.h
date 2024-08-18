@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/13 19:02:24 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/17 20:33:32 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/18 21:21:21 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -18,7 +18,7 @@
 # define MRT_H	768
 # define MRT_W	1367
 
-typedef struct	s_mlx
+typedef struct s_mlx
 {
 	void	*app;
 	void	*win;
@@ -41,8 +41,17 @@ t_s32	mrt_mlx_hook_keyup(t_s32 key, void *mlx);
 
 t_s32	mrt_mlx_hook_keydown(t_s32 key, void *mlx);
 
-t_s32	mrt_mlx_hook_window(t_s32 key, void *mlx);
+t_s32	mrt_mlx_hook_win(t_s32 key, void *mlx);
 
 // ************************************************************************** //
+
+// TODO BVH struct, object struct header, object structs, AABB struct 
+
+typedef struct s_mrt_scene
+{
+	// t_bvh_node	*root;
+	t_u32	n_obj;
+	t_u32	n_lht;
+}	t_scene;
 
 #endif

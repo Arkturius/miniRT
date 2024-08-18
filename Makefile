@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/08/17 22:09:09 by rgramati         ###   ########.fr        #
+#    Updated: 2024/08/18 21:31:03 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,12 +23,14 @@ BUILD_DIR		=	build
 SRC				=	main.c					\
 					mrtlib/mrt_mem.c		\
 					mrtlib/mrt_str.c		\
+					mrtlib/mrt_chr.c		\
 					mrtlib/mrt_tox.c		\
 					error/mrt_error.c		\
 					mlx/mrt_mlx.c			\
 					mlx/mrt_mlx_hooks.c		\
 					parser/mrt_parse.c		\
 					parser/mrt_parse_pobj.c	\
+					parser/mrt_parse_prim.c	\
 					parser/mrt_lines.c		\
 					parser/mrt_pobjs.c
 

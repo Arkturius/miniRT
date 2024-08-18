@@ -1,17 +1,18 @@
 // ************************************************************************** //
 //                                                                            //
 //                                                        :::      ::::::::   //
-//   mrt_line.c                                         :+:      :+:    :+:   //
+//   mrt_lines.c                                        :+:      :+:    :+:   //
 //                                                    +:+ +:+         +:+     //
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/14 21:29:28 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/17 20:23:32 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/18 20:31:47 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h> //TODO remove 
 
 #include <mrtlib.h>
 #include <mrt/error.h>
@@ -53,7 +54,7 @@ t_line	*mrt_line_new(const char *str, t_u32 copy, t_u32 size)
 {
 	t_line	*line;
 
-	line = malloc(sizeof *line);
+	line = malloc(sizeof (t_line));
 	if (line)
 	{
 		mrt_bzero(&line->str, MRT_LINE_LEN);
@@ -80,31 +81,4 @@ void	mrt_line_push(t_line **list, t_line *new)
 	while (tmp->next)
 		tmp = tmp->next;
 	tmp->next = new;
-}
-
-t_error	mrt_parse_line_list(t_line **list, t_parser *parser)
-{
-	char	buffer[MRT_LINE_LEN - 1];
-	t_line	*file;
-	t_line	*line;
-	t_s32	bytes;
-
-	file = NULL;
-	line = NULL;
-	while (1)
-	{
-		bytes = read(parser->fd, buffer, MRT_LINE_LEN - 1);
-		buffer[bytes] = 0;
-		if (bytes <= 0)
-			break ;
-		line = mrt_line_new((char *)&buffer, MRT_TRUE, bytes);
-		if (!line)
-		{
-			mrt_line_clean(file);
-			return (mrt_error_print(MRT_ERR_ALLOC, (void *)__func__));
-		}
-		mrt_line_push(&file, line);
-	}
-	*list = file;
-	return (MRT_SUCCESS);
 }
