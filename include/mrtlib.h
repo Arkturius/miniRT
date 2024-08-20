@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/16 21:00:20 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/18 21:19:25 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/20 18:58:07 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -15,6 +15,7 @@
 
 # include <unistd.h>
 # include <stdint.h>
+# include <fcntl.h>
 
 typedef uint64_t	t_u64;
 typedef uint32_t	t_u32;
@@ -38,6 +39,12 @@ typedef t_u32		t_bool;
 
 # define MRT_FAIL		1
 # define MRT_SUCCESS	0
+
+typedef enum e_open_mode
+{
+	MRT_OPEN_READ = O_RDONLY,
+	MRT_OPEN_WRITE = O_WRONLY | O_CREAT | O_TRUNC,
+}	t_open_mode;
 
 typedef struct s_mrt_vec
 {
@@ -74,5 +81,12 @@ int		mrt_isdigit(int c);
 int		mrt_strtoi(char *str, char **remain, int *err);
 
 float	mrt_strtof(char *str, char **remain, int *err);
+
+
+t_u32	mrt_io_open_file(const char *filename, t_s32 *fd, t_open_mode mode);
+
+t_u32	mrt_io_save(const char *filename, const char *fmt, ...);
+
+t_u32	mrt_io_load(const char *filename, const char *fmt, ...);
 
 #endif // MRTLIB_H

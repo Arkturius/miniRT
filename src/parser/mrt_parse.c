@@ -1,15 +1,16 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                        :::      ::::::::   //
-//   mrt_parse.c                                        :+:      :+:    :+:   //
-//                                                    +:+ +:+         +:+     //
-//   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
-//                                                +#+#+#+#+#+   +#+           //
-//   Created: 2024/08/13 20:43:35 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/18 21:30:54 by rgramati         ###   ########.fr       //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mrt_parse.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/13 20:43:35 by rgramati          #+#    #+#             */
+/*   Updated: 2024/08/18 21:30:54 by rgramati         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "mrtlib.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -96,6 +97,7 @@ static t_error	mrt_parse_line_list(t_line **list, t_parser *parser)
 	return (MRT_SUCCESS);
 }
 
+#include <stdio.h>
 static t_error	mrt_parse_file_lines(t_parser *parser)
 {
 	t_line		*file;
@@ -113,6 +115,7 @@ static t_error	mrt_parse_file_lines(t_parser *parser)
 		parser->objs = objs;
 		while (objs)
 		{
+			printf("obj <%p>: type = %d\n", objs, objs->obj_type);
 			++(parser->obj_count);
 			objs = objs->next;
 		}
@@ -134,17 +137,15 @@ t_error	mrt_parse_file(const char *filename, t_parser *parser)
 		if (!parser || !filename)
 			break ;
 		parser->filename = filename;
-		parser->fd = -1;
-		if (!filename)
-			break ;
-		err = "File not found...";
-		parser->fd = open(parser->filename, O_RDONLY);
-		if (parser->fd == -1)
+		err = "File couldn't be opened...";
+		if (mrt_io_open_file(filename, &parser->fd, MRT_OPEN_READ))
 			break ;
 		err = "Errors found in file...";
 		if (mrt_parse_file_lines(parser))
 			break ;
 		return (MRT_SUCCESS);
 	}
+	if (parser->fd != -1)
+		close(parser->fd);
 	return (mrt_error_print(MRT_ERR_FILE, (void *)err));
 }

@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/13 20:08:34 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/18 21:24:25 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/20 19:12:12 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -137,7 +137,7 @@ t_error		mrt_parse_pobj(t_pheader **obj, char *str, char **remain);
 
 t_objtype	mrt_parse_pobj_type(char *str, char **remain);
 
-t_error		mrt_parse_pobj_light(t_pheader **obj, char *str, char **remain, int amb);
+t_error		mrt_parse_pobj_light(t_pheader **obj, char *str, char **remain);
 
 t_error		mrt_parse_pobj_camera(t_pheader **obj, char *str, char **remain);
 

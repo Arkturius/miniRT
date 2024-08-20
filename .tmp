@@ -19,17 +19,24 @@
 
 t_pheader	*mrt_pobj_new(t_objtype type)
 {
-	t_u32			size;
-	t_pheader		*obj;
-	static t_u32	obj_sizes[7] = {0, \
-		sizeof(t_pobj_ambient), \
-		sizeof(t_pobj_camera), \
-		sizeof(t_pobj_light), \
-		sizeof(t_pobj_sphere), \
-		sizeof(t_pobj_plane), \
-		sizeof(t_pobj_cylinder)};
+	t_u32		size;
+	t_pheader	*obj;
 
-	size = obj_sizes[type];
+	size = sizeof * obj;
+	if (type == MRT_OBJ_NONE)
+		return (NULL);
+	else if (type == MRT_OBJ_AMBIENT)
+		size = sizeof(t_pobj_ambient);
+	else if (type == MRT_OBJ_CAMERA)
+		size = sizeof(t_pobj_camera);
+	else if (type == MRT_OBJ_LIGHT)
+		size = sizeof(t_pobj_light);
+	else if (type == MRT_OBJ_SPHERE)
+		size = sizeof(t_pobj_sphere);
+	else if (type == MRT_OBJ_PLANE)
+		size = sizeof(t_pobj_plane);
+	else if (type == MRT_OBJ_CYLINDER)
+		size = sizeof(t_pobj_cylinder);
 	obj = malloc(size);
 	if (obj)
 		mrt_bzero(obj, size);
@@ -78,18 +85,9 @@ t_objtype	mrt_parse_pobj_type(char *str, char **remain)
 	return ((t_objtype)index);
 }
 
-typedef t_error	(mrt_parse_pobj_func)(t_pheader **, char *, char **);
-
 t_error	mrt_parse_pobj(t_pheader **obj, char *str, char **remain)
 {
-	t_objtype			type;
-	mrt_parse_pobj_func	*funcs[7] = {NULL,
-		&mrt_parse_pobj_light,
-		&mrt_parse_pobj_camera,
-		&mrt_parse_pobj_light,
-		&mrt_parse_pobj_sphere,
-		&mrt_parse_pobj_plane,
-		&mrt_parse_pobj_cylinder};
+	t_objtype	type;
 
 	if (!str || !remain)
 		return (MRT_FAIL);
@@ -97,6 +95,16 @@ t_error	mrt_parse_pobj(t_pheader **obj, char *str, char **remain)
 	str = *remain;
 	if (type == MRT_OBJ_NONE)
 		return (MRT_FAIL);
-	funcs[type](obj, str, (char **)((t_uptr)&str | (type == MRT_OBJ_AMBIENT)));
-	return (MRT_SUCCESS);
+	if (type == MRT_OBJ_AMBIENT || type == MRT_OBJ_LIGHT)
+		return (mrt_parse_pobj_light(obj, str, remain, \
+							(type == MRT_OBJ_AMBIENT)));
+	if (type == MRT_OBJ_CAMERA)
+		return (mrt_parse_pobj_camera(obj, str, remain));
+	if (type == MRT_OBJ_SPHERE)
+		return (mrt_parse_pobj_sphere(obj, str, remain));
+	if (type == MRT_OBJ_PLANE)
+		return (mrt_parse_pobj_plane(obj, str, remain));
+	if (type == MRT_OBJ_CYLINDER)
+		return (mrt_parse_pobj_cylinder(obj, str, remain));
+	return (MRT_FAIL);
 }

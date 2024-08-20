@@ -1,14 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                        :::      ::::::::   //
-//   mrt_mlx.c                                          :+:      :+:    :+:   //
-//                                                    +:+ +:+         +:+     //
-//   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
-//                                                +#+#+#+#+#+   +#+           //
-//   Created: 2024/08/13 19:29:29 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/18 21:15:34 by rgramati         ###   ########.fr       //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mrt_mlx.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/13 19:29:29 by rgramati          #+#    #+#             */
+/*   Updated: 2024/08/18 21:15:34 by rgramati         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include <mlx.h>
 
@@ -18,11 +18,11 @@
 
 void	mrt_mlx_clean(t_mlx *mlx)
 {
-	if (mlx->app)
+	if (mlx->app && mlx->img)
 		mlx_destroy_image(mlx->app, mlx->img);
-	if (mlx->win)
+	if (mlx->app && mlx->win)
 		mlx_destroy_window(mlx->app, mlx->win);
-	if (mlx->img)
+	if (mlx->app)
 		mlx_destroy_display(mlx->app);
 }
 

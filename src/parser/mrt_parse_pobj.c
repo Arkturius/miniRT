@@ -1,14 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                        :::      ::::::::   //
-//   mrt_parse_pobj.c                                   :+:      :+:    :+:   //
-//                                                    +:+ +:+         +:+     //
-//   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
-//                                                +#+#+#+#+#+   +#+           //
-//   Created: 2024/08/17 20:39:05 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/18 20:26:43 by rgramati         ###   ########.fr       //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mrt_parse_pobj.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/17 20:39:05 by rgramati          #+#    #+#             */
+/*   Updated: 2024/08/18 20:26:43 by rgramati         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include <mrtlib.h>
 #include <mrt/error.h>
@@ -35,25 +35,25 @@ t_error	mrt_parse_pobj_camera(t_pheader **obj, char *str, char **remain)
 	return (MRT_FAIL);
 }
 
-t_error	mrt_parse_pobj_light(t_pheader **obj, char *str, char **remain, int a)
+t_error	mrt_parse_pobj_light(t_pheader **obj, char *str, char **remain)
 {
 	t_pobj_light	*lig;
 
 	while (1)
 	{
-		if (a)
+		if ((t_uptr)remain % 2)
 			lig = (t_pobj_light *) mrt_pobj_new(MRT_OBJ_AMBIENT);
 		else
 			lig = (t_pobj_light *) mrt_pobj_new(MRT_OBJ_LIGHT);
 		if (!lig)
 			break ;
-		if (!a && mrt_parse_vec(&lig->lightpoint, str, &str))
+		if (!((t_uptr)remain % 2) && mrt_parse_vec(&lig->lightpoint, str, &str))
 			break ;
 		if (mrt_parse_float(&lig->ratio, str, &str))
 			break ;
 		if (mrt_parse_color(&lig->color, str, &str))
 			break ;
-		*remain = str;
+		*((char **)((t_uptr) remain & ~1)) = str;
 		*obj = (t_pheader *) lig;
 		return (MRT_SUCCESS);
 	}
