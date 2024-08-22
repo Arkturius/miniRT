@@ -78,12 +78,11 @@ t_objtype	mrt_parse_pobj_type(char *str, char **remain)
 	return ((t_objtype)index);
 }
 
-typedef t_error	(mrt_parse_pobj_func)(t_pheader **, char *, char **);
-
 t_error	mrt_parse_pobj(t_pheader **obj, char *str, char **remain)
 {
-	t_objtype			type;
-	mrt_parse_pobj_func	*funcs[7] = {NULL,
+	t_objtype					type;
+	char						**arg;
+	static mrt_parse_pobj_func	*funcs[7] = {NULL,
 		&mrt_parse_pobj_light,
 		&mrt_parse_pobj_camera,
 		&mrt_parse_pobj_light,
@@ -97,6 +96,9 @@ t_error	mrt_parse_pobj(t_pheader **obj, char *str, char **remain)
 	str = *remain;
 	if (type == MRT_OBJ_NONE)
 		return (MRT_FAIL);
-	funcs[type](obj, str, (char **)((t_uptr)&str | (type == MRT_OBJ_AMBIENT)));
+	arg = (char **)((t_uptr) & str | (type == MRT_OBJ_AMBIENT));
+	if (funcs[type](obj, str, arg))
+		return (MRT_FAIL);
+	*remain = str;
 	return (MRT_SUCCESS);
 }

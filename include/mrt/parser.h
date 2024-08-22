@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/13 20:08:34 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/20 19:12:12 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/21 18:31:11 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -18,6 +18,7 @@
 typedef enum e_mrt_error		t_error;
 
 // PARSED OBJS HOLDERS ****************************************************** //
+
 
 typedef enum e_mrt_objects
 {
@@ -31,6 +32,8 @@ typedef enum e_mrt_objects
 }	t_objtype;
 
 typedef struct s_pobj_header	t_pheader;
+
+typedef t_error	(mrt_parse_pobj_func)(t_pheader **, char *, char **);
 
 struct	s_pobj_header
 {

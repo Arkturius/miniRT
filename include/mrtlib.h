@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/16 21:00:20 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/20 18:58:07 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/21 19:45:13 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -83,7 +83,21 @@ int		mrt_strtoi(char *str, char **remain, int *err);
 float	mrt_strtof(char *str, char **remain, int *err);
 
 
+
+typedef struct s_mrt_io_array
+{
+	t_u32	nmemb;
+	t_u32	size;
+	t_u8	*addr;
+}	t_io_array;
+
+void	mrt_io_write(t_s32 fd, t_u8 *data, t_u64 size);
+
+void	mrt_io_read(t_s32 fd, t_u8 *data, t_u64 size);
+
 t_u32	mrt_io_open_file(const char *filename, t_s32 *fd, t_open_mode mode);
+
+t_u32	mrt_io_close_file(t_s32 fd);
 
 t_u32	mrt_io_save(const char *filename, const char *fmt, ...);
 

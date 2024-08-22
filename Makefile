@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/08/20 16:44:27 by rgramati         ###   ########.fr        #
+#    Updated: 2024/08/21 19:52:17 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,6 +26,8 @@ SRC				=	main.c					\
 					mrtlib/mrt_chr.c		\
 					mrtlib/mrt_tox.c		\
 					mrtlib/mrt_io.c			\
+					mrtlib/mrt_io_save.c	\
+					mrtlib/mrt_io_load.c	\
 					error/mrt_error.c		\
 					mlx/mrt_mlx.c			\
 					mlx/mrt_mlx_hooks.c		\
@@ -83,7 +85,7 @@ $(MLX):
 $(OBJ_DIR)/%.o:	$(SRC_DIR)/%.c
 	@mkdir -p $(@D)
 ifeq ($(VERBOSE), 1)
-	@echo "$(BOLD)  🔩 building $(RESET)$(ITALIC)$@$(RESET)$(BOLD) from $(RESET)$(ITALIC)$^ ...$(RESET)"
+	@echo "$(BOLD)  🔩 building $(RESET)$(ITALIC)$(shell echo $@ | rev | cut -d '/' -f 1 | rev)$(RESET)$(BOLD) from $(RESET)$(ITALIC)$^ ...$(RESET)"
 endif
 	@$(CC) $(CFLAGS) $(COPTS) -c $< -o $@
 

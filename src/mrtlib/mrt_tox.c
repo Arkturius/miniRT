@@ -33,6 +33,7 @@ int	mrt_strtoi(char *str, char **remain, int *err)
 		res = tmp;
 		++str;
 	}
+	*err = (str == *remain);
 	*remain = str;
 	if (sign)
 		return (-res);

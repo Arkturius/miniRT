@@ -97,7 +97,6 @@ static t_error	mrt_parse_line_list(t_line **list, t_parser *parser)
 	return (MRT_SUCCESS);
 }
 
-#include <stdio.h>
 static t_error	mrt_parse_file_lines(t_parser *parser)
 {
 	t_line		*file;
@@ -115,7 +114,6 @@ static t_error	mrt_parse_file_lines(t_parser *parser)
 		parser->objs = objs;
 		while (objs)
 		{
-			printf("obj <%p>: type = %d\n", objs, objs->obj_type);
 			++(parser->obj_count);
 			objs = objs->next;
 		}
