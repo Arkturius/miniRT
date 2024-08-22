@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/08/21 19:52:17 by rgramati         ###   ########.fr        #
+#    Updated: 2024/08/22 23:19:08 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,6 +25,7 @@ SRC				=	main.c					\
 					mrtlib/mrt_str.c		\
 					mrtlib/mrt_chr.c		\
 					mrtlib/mrt_tox.c		\
+					mrtlib/mrt_list.c		\
 					mrtlib/mrt_io.c			\
 					mrtlib/mrt_io_save.c	\
 					mrtlib/mrt_io_load.c	\

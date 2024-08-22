@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/16 21:00:20 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/21 19:45:13 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/22 23:17:18 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -46,6 +46,12 @@ typedef enum e_open_mode
 	MRT_OPEN_WRITE = O_WRONLY | O_CREAT | O_TRUNC,
 }	t_open_mode;
 
+typedef struct s_list
+{
+	void			*content;
+	struct s_list	*next;
+}	t_list;
+
 typedef struct s_mrt_vec
 {
 	t_f32	x;
@@ -74,6 +80,10 @@ void	*mrt_memcpy(void *dst, const void *src, size_t n);
 
 size_t	mrt_strlen(const char *str);
 
+char	*mrt_strdup(const char *str);
+
+char	*mrt_strchr(const char *str, char c);
+
 int		mrt_isspace(int c);
 
 int		mrt_isdigit(int c);
@@ -82,14 +92,14 @@ int		mrt_strtoi(char *str, char **remain, int *err);
 
 float	mrt_strtof(char *str, char **remain, int *err);
 
-
-
 typedef struct s_mrt_io_array
 {
 	t_u32	nmemb;
 	t_u32	size;
 	t_u8	*addr;
 }	t_io_array;
+
+t_u32	mrt_io_error(const char *func);
 
 void	mrt_io_write(t_s32 fd, t_u8 *data, t_u64 size);
 

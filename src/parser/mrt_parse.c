@@ -115,6 +115,7 @@ static t_error	mrt_parse_file_lines(t_parser *parser)
 		while (objs)
 		{
 			++(parser->obj_count);
+			mrt_pobj_print_bin(objs, 2);
 			objs = objs->next;
 		}
 		if (!parser->objs)

@@ -70,12 +70,12 @@ float	mrt_strtof(char *str, char **remain, int *err)
 	if (*err)
 		return (MRT_FAIL);
 	if (*str == '.')
-	{
 		++str;
-		res = int_res + mrt_strtof_comma(&str) / 10;
-		if (res < int_res)
-			*err = MRT_FAIL;
-	}
+	if (*(str - 1) == '.')
+		res = mrt_strtof_comma(&str) / 10;
+	res += int_res;
+	if (res < int_res)
+		*err = MRT_FAIL;
 	*remain = str + (*str == 'f');
 	if (sign)
 		return (-res);

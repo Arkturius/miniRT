@@ -14,116 +14,81 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 
-t_error	mrt_parse_pobj_camera(t_pheader **obj, char *str, char **remain)
+void	mrt_parse_pobj_step(t_u8 **ptr, char fmt, t_bool dir)
 {
-	t_pobj_camera	*cam;
+	t_u32	size;
 
-	while (1)
-	{
-		cam = (t_pobj_camera *) mrt_pobj_new(MRT_OBJ_CAMERA);
-		if (!cam || mrt_parse_vec(&cam->viewpoint, str, &str))
-			break ;
-		if (mrt_parse_vec(&cam->orientation, str, &str))
-			break ;
-		if (mrt_parse_int(&cam->fov, str, &str))
-			break ;
-		*obj = (t_pheader *) cam;
-		*remain = str;
-		return (MRT_SUCCESS);
-	}
-	mrt_pobj_clean((t_pheader *) cam);
-	return (MRT_FAIL);
+	size = 0;
+	if (fmt == 'i' || fmt == 'f' || fmt == 'c')
+		size = sizeof(t_u32);
+	if (fmt == 'v')
+		size = sizeof(t_mrt_vec);
+	if (dir)
+		*ptr += size;
+	else
+		*ptr -= size;
 }
 
-t_error	mrt_parse_pobj_light(t_pheader **obj, char *str, char **remain)
-{
-	t_pobj_light	*lig;
+t_error	mrt_parse_pobj_value(
+	t_u8 **ptr,
+	char fmt,
+	char *str,
+	char **remain
+)	{
+	t_error	err;
 
-	while (1)
+	err = MRT_SUCCESS;
+	if (fmt == 'i')
+		err = mrt_parse_int((int *)*ptr, str, &str);
+	if (fmt == 'f')
+		err = mrt_parse_float((float *)*ptr, str, &str);
+	if (fmt == 'c')
+		err = mrt_parse_color((t_mrt_color *)*ptr, str, &str);
+	if (fmt == 'v')
+		err = mrt_parse_vec((t_mrt_vec *)*ptr, str, &str);
+	if (!err)
 	{
-		if ((t_uptr)remain % 2)
-			lig = (t_pobj_light *) mrt_pobj_new(MRT_OBJ_AMBIENT);
-		else
-			lig = (t_pobj_light *) mrt_pobj_new(MRT_OBJ_LIGHT);
-		if (!lig)
-			break ;
-		if (!((t_uptr)remain % 2) && mrt_parse_vec(&lig->lightpoint, str, &str))
-			break ;
-		if (mrt_parse_float(&lig->ratio, str, &str))
-			break ;
-		if (mrt_parse_color(&lig->color, str, &str))
-			break ;
-		*((char **)((t_uptr) remain & ~1)) = str;
-		*obj = (t_pheader *) lig;
-		return (MRT_SUCCESS);
+		if ((fmt == 'i' || fmt == 'f' || fmt == 'c'))
+			*ptr += sizeof(t_u32);
+		if (fmt == 'v')
+			*ptr += sizeof(t_mrt_vec);
 	}
-	mrt_pobj_clean((t_pheader *) lig);
-	return (MRT_FAIL);
+	if (fmt == '#')
+	{
+		while ((t_uptr) * ptr & (sizeof(t_u64) - 1))
+			(*ptr)++;
+	}
+	*remain = str;
+	return (err);
 }
 
-t_error	mrt_parse_pobj_sphere(t_pheader **obj, char *str, char **remain)
-{
-	t_pobj_sphere	*sph;
+t_error	mrt_parse_pobj_data(
+	t_pheader **obj,
+	char *fmt,
+	char *str,
+	char **remain
+)	{
+	t_u8	*ptr;
+	char	*is_fmt;
 
-	while (1)
+	ptr = (t_u8 *)*obj + sizeof(t_pheader);
+	if (!ptr)
+		return (MRT_FAIL);
+	while (*fmt && *(fmt + 1))
 	{
-		sph = (t_pobj_sphere *) mrt_pobj_new(MRT_OBJ_SPHERE);
-		if (!sph || mrt_parse_vec(&sph->center, str, &str))
-			break ;
-		if (mrt_parse_float(&sph->diameter, str, &str))
-			break ;
-		if (mrt_parse_color(&sph->color, str, &str))
-			break ;
-		*remain = str;
-		*obj = (t_pheader *) sph;
-		return (MRT_SUCCESS);
+		is_fmt = mrt_strchr(MRT_PFORMAT, *(fmt + 1));
+		if (*fmt == '!' && is_fmt)
+		{
+			fmt++;
+			if (mrt_parse_pobj_value(&ptr, *fmt, str, &str))
+				return (MRT_FAIL);
+		}
+		else if (*fmt == '>' && is_fmt)
+			mrt_parse_pobj_step(&ptr, *(++fmt), MRT_TRUE);
+		else if (*fmt == '<' && is_fmt)
+			mrt_parse_pobj_step(&ptr, *(++fmt), MRT_FALSE);
+		fmt++;
 	}
-	mrt_pobj_clean((t_pheader *) sph);
-	return (MRT_FAIL);
-}
-
-t_error	mrt_parse_pobj_plane(t_pheader **obj, char *str, char **remain)
-{
-	t_pobj_plane	*pla;
-
-	while (1)
-	{
-		pla = (t_pobj_plane *) mrt_pobj_new(MRT_OBJ_PLANE);
-		if (!pla || mrt_parse_vec(&pla->position, str, &str))
-			break ;
-		if (mrt_parse_vec(&pla->norm, str, &str))
-			break ;
-		if (mrt_parse_color(&pla->color, str, &str))
-			break ;
-		*remain = str;
-		*obj = (t_pheader *) pla;
-		return (MRT_SUCCESS);
-	}
-	mrt_pobj_clean((t_pheader *) pla);
-	return (MRT_FAIL);
-}
-
-t_error	mrt_parse_pobj_cylinder(t_pheader **obj, char *str, char **remain)
-{
-	t_pobj_cylinder	*cyl;
-
-	while (1)
-	{
-		cyl = (t_pobj_cylinder *) mrt_pobj_new(MRT_OBJ_CYLINDER);
-		if (!cyl || mrt_parse_vec(&cyl->center, str, &str))
-			break ;
-		if (mrt_parse_vec(&cyl->norm, str, &str))
-			break ;
-		if (mrt_parse_float(&cyl->diameter, str, &str))
-			break ;
-		if (mrt_parse_float(&cyl->height, str, &str))
-			break ;
-		if (mrt_parse_color(&cyl->color, str, &str))
-			break ;
-		*remain = str;
-		*obj = (t_pheader *) cyl;
-		return (MRT_SUCCESS);
-	}
-	mrt_pobj_clean((t_pheader *) cyl);
-	return (MRT_FAIL);
+	*remain = str;
+	return (MRT_SUCCESS);
 }

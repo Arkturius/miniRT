@@ -18,7 +18,7 @@
 #include <mrt/parser.h>
 
 //remove this function please
-void	mrt_pobj_print_bin(t_pheader *head, t_u32 type)
+void		mrt_pobj_print_bin(t_pheader *head, t_u32 type)
 {
 	t_u32			size;
 	t_u8			*ptr;
