@@ -17,6 +17,12 @@
 
 #define MRT_ERROR	"\033[31;1m/!\\ [Error] > \033[39;21;3m%s\n"
 
+t_error	mrt_error_alloc(const char *func)
+{
+	printf(MRT_ERROR, func);
+	return (MRT_ERR_ALLOC);
+}
+
 t_error	mrt_error_print(t_error type, void *data)
 {
 	if (type != MRT_SUCCESS)

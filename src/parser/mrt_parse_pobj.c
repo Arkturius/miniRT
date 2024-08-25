@@ -14,26 +14,8 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 
-void	mrt_parse_pobj_step(t_u8 **ptr, char fmt, t_bool dir)
-{
-	t_u32	size;
-
-	size = 0;
-	if (fmt == 'i' || fmt == 'f' || fmt == 'c')
-		size = sizeof(t_u32);
-	if (fmt == 'v')
-		size = sizeof(t_mrt_vec);
-	if (dir)
-		*ptr += size;
-	else
-		*ptr -= size;
-}
-
-t_error	mrt_parse_pobj_value(
-	t_u8 **ptr,
-	char fmt,
-	char *str,
-	char **remain
+static t_error	mrt_parse_pobj_value(
+	t_u8 **ptr, char fmt, char *str, char **remain
 )	{
 	t_error	err;
 
@@ -62,12 +44,9 @@ t_error	mrt_parse_pobj_value(
 	return (err);
 }
 
-t_error	mrt_parse_pobj_data(
-	t_pheader **obj,
-	char *fmt,
-	char *str,
-	char **remain
-)	{
+static t_error	mrt_parse_pobj_data(
+	t_pheader **obj, char *fmt, char *str, char **remain)
+{
 	t_u8	*ptr;
 	char	*is_fmt;
 
@@ -83,12 +62,73 @@ t_error	mrt_parse_pobj_data(
 			if (mrt_parse_pobj_value(&ptr, *fmt, str, &str))
 				return (MRT_FAIL);
 		}
-		else if (*fmt == '>' && is_fmt)
-			mrt_parse_pobj_step(&ptr, *(++fmt), MRT_TRUE);
-		else if (*fmt == '<' && is_fmt)
-			mrt_parse_pobj_step(&ptr, *(++fmt), MRT_FALSE);
 		fmt++;
 	}
 	*remain = str;
+	return (MRT_SUCCESS);
+}
+
+static t_objtype	mrt_parse_pobj_type(
+	char *str, char **remain)
+{
+	const char	*ids[7] = {"A", "C", "L", "sp", "pl", "cy", NULL};
+	t_u32		index;
+
+	if (!*str)
+		return (MRT_OBJ_NONE);
+	index = 1;
+	while (ids[index - 1])
+	{
+		if (index < 4 && *(ids[index - 1]) == *str)
+			break ;
+		else if (index > 3 && *(t_u16 *)ids[index - 1] == *(t_u16 *)str)
+			break ;
+		++index;
+	}
+	*remain = str + 1 + (index > 3);
+	return ((t_objtype)index);
+}
+
+static t_error	mrt_parse_pobj(
+	t_pheader **obj, char *str, char **remain)
+{
+	t_objtype	type;
+	static char	*formats[7] = {"",	\
+		MRT_PFORMAT_AMBIENT,		\
+		MRT_PFORMAT_CAMERA,			\
+		MRT_PFORMAT_LIGHT,			\
+		MRT_PFORMAT_SPHERE,			\
+		MRT_PFORMAT_PLANE,			\
+		MRT_PFORMAT_CYLINDER};
+
+	if (!str || !remain)
+		return (MRT_FAIL);
+	type = mrt_parse_pobj_type(str, &str);
+	if (type == MRT_OBJ_NONE)
+		return (MRT_FAIL);
+	*obj = mrt_pobj_new(type);
+	mrt_parse_pobj_data(obj, formats[type], str, &str);
+	*remain = str;
+	return (MRT_SUCCESS);
+}
+
+t_error	mrt_parse_pobj_all(
+	t_file *file)
+{
+	char		*data;
+	t_pheader	*tmp;
+
+	tmp = NULL;
+	data = file->data;
+	while (*data)
+	{
+		if (mrt_parse_pobj(&tmp, data, &data))
+			return (MRT_FAIL);
+		mrt_pobj_push(&file->objs, tmp);
+		while (mrt_isspace(*data || *data == '\n'))
+			data++;
+	}
+	if (*data)
+		return (MRT_FAIL);
 	return (MRT_SUCCESS);
 }

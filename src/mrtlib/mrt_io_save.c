@@ -22,7 +22,7 @@ t_error	mrt_io_save_array(t_s32 fd, t_io_array arr, t_bool sized)
 
 	bytes[0] = arr.nmemb * arr.size;
 	if (bytes[0] / arr.nmemb != arr.size)
-		return (mrt_io_error(__func__));
+		return (MRT_ERR_FILE_PROC);
 	if (sized)
 		chunk = (t_u64) arr.nmemb << 32 | arr.size;
 	if (sized)
@@ -56,7 +56,7 @@ t_error	mrt_io_save_stream(t_s32 fd, const char *fmt, va_list stream)
 			arr.nmemb = va_arg(stream, t_u32);
 			arr.size = va_arg(stream, t_u32);
 			if (arr.addr && mrt_io_save_array(fd, arr, sized))
-				return (mrt_io_error(__func__));
+				return (MRT_ERR_FILE_PROC);
 			sized = MRT_FALSE;
 		}
 		++str;
@@ -86,16 +86,18 @@ t_error	mrt_io_save(const char *filename, const char *fmt, ...)
 {
 	va_list	data;
 	t_s32	save;
+	t_error	err;
 
-	if (mrt_io_open_file(filename, &save, MRT_OPEN_WRITE))
-		return (MRT_ERR_FILE);
+	err = mrt_io_open_file(filename, &save, MRT_OPEN_WRITE);
+	if (err != MRT_SUCCESS)
+		return (err);
 	va_start(data, fmt);
-	if (mrt_io_save_stream(save, fmt, data))
+	err = mrt_io_save_stream(save, fmt, data);
+	if (err != MRT_SUCCESS)
 	{
 		va_end(data);
-		return (mrt_io_error(__func__));
+		return (err);
 	}
 	va_end(data);
-	mrt_io_error(NULL);
 	return (MRT_SUCCESS);
 }

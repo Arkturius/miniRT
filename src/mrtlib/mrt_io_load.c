@@ -21,6 +21,8 @@ t_error	mrt_io_load_array(t_s32 fd, t_io_array arr, t_bool sized)
 	t_u64	bytes[2];
 	t_u64	chunk;
 
+	if (!arr.addr)
+		return (MRT_ERR_FILE_PROC);
 	if (sized)
 	{
 		mrt_io_read(fd, (t_u8 *) &chunk, sizeof(t_u64));
@@ -29,7 +31,7 @@ t_error	mrt_io_load_array(t_s32 fd, t_io_array arr, t_bool sized)
 	}
 	bytes[0] = arr.nmemb * arr.size;
 	if (bytes[0] / arr.nmemb != arr.size)
-		return (mrt_io_error(__func__));
+		return (MRT_ERR_FILE_PROC);
 	*(void **)(arr.addr) = malloc(bytes[0]);
 	if (!*(void **)(arr.addr))
 		return (MRT_ERR_ALLOC);
@@ -45,10 +47,10 @@ t_error	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
 	char		*str;
 	t_io_array	arr;
 	t_bool		sized;
+	t_error		err;
 
 	str = (char *)fmt;
-	arr.nmemb = 1;
-	arr.size = 1;
+	arr = (t_io_array){.size = 1, .nmemb = 1, .addr = 0};
 	sized = MRT_TRUE;
 	while (*str)
 	{
@@ -58,10 +60,10 @@ t_error	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
 			sized = MRT_TRUE;
 		else if (*str == ' ')
 		{
-			if (arr.addr)
-				mrt_io_load_array(fd, arr, sized);
+			err = mrt_io_load_array(fd, arr, sized);
+			if (err != MRT_SUCCESS)
+				return (err);
 			sized = MRT_FALSE;
-			arr.addr = NULL;
 		}
 		++str;
 	}
@@ -88,14 +90,17 @@ t_error	mrt_io_load(const char *filename, const char *fmt, ...)
 {
 	va_list	data;
 	t_s32	save;
+	t_error	err;
 
-	if (mrt_io_open_file(filename, &save, MRT_OPEN_READ))
-		return (MRT_ERR_FILE);
+	err = mrt_io_open_file(filename, &save, MRT_OPEN_READ);
+	if (err != MRT_SUCCESS)
+		return (err);
 	va_start(data, fmt);
-	if (mrt_io_load_stream(save, fmt, data))
+	err = mrt_io_load_stream(save, fmt, data);
+	if (err != MRT_SUCCESS)
 	{
 		va_end(data);
-		return (mrt_io_error(__func__));
+		return (err);
 	}
 	va_end(data);
 	return (MRT_SUCCESS);

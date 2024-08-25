@@ -27,10 +27,11 @@ void	mrt_mlx_scene_render(t_mlx *mlx, t_scene *scene)
 	mlx_loop(mlx->app);
 }
 
-t_error	mrt_scene_convert(t_parser *parser, t_scene *scene)
+t_error	mrt_scene_convert(t_file *file, t_scene *scene)
 {
-	scene->n_obj = parser->obj_count;
-	mrt_pobj_clean(parser->objs);
+	(void) scene;
+	mrt_parse_pobj_all(file);
+	mrt_pobj_clean(file->objs);
 	return (MRT_SUCCESS);
 }
 
@@ -42,19 +43,19 @@ void	mrt_scene_clean(t_scene *scene)
 t_s32	main(__attribute__((unused)) int argc, char **argv)
 {
 	t_mlx		mlx;
-	t_parser	parser;
+	t_file		file;
 	t_scene		scene;
 	t_error		ret;
 
 	ret = MRT_FAIL;
 	mrt_bzero(&mlx, sizeof(t_mlx));
-	mrt_bzero(&parser, sizeof(t_parser));
+	mrt_bzero(&file, sizeof(t_file));
 	mrt_bzero(&scene, sizeof(t_scene));
 	while (1)
 	{
-		if (mrt_parse_file(argv[1], &parser))
+		if (mrt_parse_file(argv[1], &file))
 			break ;
-		if (mrt_scene_convert(&parser, &scene))
+		if (mrt_scene_convert(&file, &scene))
 			break ;
 		if (mrt_mlx_init(&mlx))
 			break ;

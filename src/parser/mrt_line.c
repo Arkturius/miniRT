@@ -17,13 +17,6 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 
-void	mrt_line_copy(t_line *line, const char *str, t_u32 size)
-{
-	if (!line || !str || !size)
-		return ;
-	mrt_memcpy((void *)&line->str, (const void *)str, size);
-}
-
 t_u32	mrt_line_count(t_line *list)
 {
 	t_u32	size;
@@ -57,8 +50,8 @@ t_line	*mrt_line_new(const char *str, t_u32 copy, t_u32 size)
 	if (line)
 	{
 		mrt_bzero(&line->str, MRT_LINE_LEN);
-		if (copy)
-			mrt_line_copy(line, str, size);
+		if (copy && line && str && size)
+			mrt_memcpy(line->str, str, size);
 		line->str[MRT_LINE_LEN - 1] = 0;
 		line->next = NULL;
 	}

@@ -6,7 +6,7 @@
 //   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
 //                                                +#+#+#+#+#+   +#+           //
 //   Created: 2024/08/16 21:00:20 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/22 23:17:18 by rgramati         ###   ########.fr       //
+//   Updated: 2024/08/25 16:59:51 by rgramati         ###   ########.fr       //
 //                                                                            //
 // ************************************************************************** //
 
@@ -98,8 +98,6 @@ typedef struct s_mrt_io_array
 	t_u32	size;
 	t_u8	*addr;
 }	t_io_array;
-
-t_u32	mrt_io_error(const char *func);
 
 void	mrt_io_write(t_s32 fd, t_u8 *data, t_u64 size);
 
