@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/08/25 16:42:50 by rgramati         ###   ########.fr        #
+#    Updated: 2024/08/25 19:22:53 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,9 +34,11 @@ SRC				=	main.c					\
 					mlx/mrt_mlx_hooks.c		\
 					parser/mrt_parse_file.c	\
 					parser/mrt_parse_pobj.c	\
+					parser/mrt_parse_objs.c	\
 					parser/mrt_parse_prim.c	\
 					parser/mrt_line.c		\
-					parser/mrt_pobj.c
+					parser/mrt_pobj.c		\
+					objects/mrt_obj_chunk.c	\
 
 SRC_DIR			=	src
 SRC				:=	$(addprefix $(SRC_DIR)/, $(SRC))

@@ -31,6 +31,7 @@ t_error	mrt_scene_convert(t_file *file, t_scene *scene)
 {
 	(void) scene;
 	mrt_parse_pobj_all(file);
+	mrt_parse_objs_all(scene, file);
 	mrt_pobj_clean(file->objs);
 	return (MRT_SUCCESS);
 }
@@ -40,31 +41,33 @@ void	mrt_scene_clean(t_scene *scene)
 	(void) scene;
 }
 
-t_s32	main(__attribute__((unused)) int argc, char **argv)
-{
-	t_mlx		mlx;
-	t_file		file;
-	t_scene		scene;
-	t_error		ret;
+#define GIVE_ME_SIZE(X) printf("size of %s is : %zu\n", #X, sizeof(X));
 
-	ret = MRT_FAIL;
-	mrt_bzero(&mlx, sizeof(t_mlx));
-	mrt_bzero(&file, sizeof(t_file));
-	mrt_bzero(&scene, sizeof(t_scene));
-	while (1)
-	{
-		if (mrt_parse_file(argv[1], &file))
-			break ;
-		if (mrt_scene_convert(&file, &scene))
-			break ;
-		if (mrt_mlx_init(&mlx))
-			break ;
-		mrt_mlx_hook_setup(&mlx);
-		mrt_mlx_scene_render(&mlx, &scene);
-		ret = MRT_SUCCESS;
-		break ;
-	}
-	mrt_scene_clean(&scene);
-	mrt_mlx_clean(&mlx);
-	return (ret);
-}
+// t_s32	main(__attribute__((unused)) int argc, char **argv)
+// {
+// 	t_mlx		mlx;
+// 	t_file		file;
+// 	t_scene		scene;
+// 	t_error		ret;
+//
+// 	ret = MRT_FAIL;
+// 	mrt_bzero(&mlx, sizeof(t_mlx));
+// 	mrt_bzero(&file, sizeof(t_file));
+// 	mrt_bzero(&scene, sizeof(t_scene));
+// 	while (1)
+// 	{
+// 		if (mrt_parse_file(argv[1], &file))
+// 			break ;
+// 		if (mrt_scene_convert(&file, &scene))
+// 			break ;
+// 		if (mrt_mlx_init(&mlx))
+// 			break ;
+// 		mrt_mlx_hook_setup(&mlx);
+// 		mrt_mlx_scene_render(&mlx, &scene);
+// 		ret = MRT_SUCCESS;
+// 		break ;
+// 	}
+// 	mrt_scene_clean(&scene);
+// 	mrt_mlx_clean(&mlx);
+// 	return (ret);
+// }

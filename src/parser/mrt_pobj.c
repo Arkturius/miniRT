@@ -17,50 +17,6 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 
-//remove this function please
-void	mrt_pobj_print_bin(t_pheader *head, t_u32 type)
-{
-	t_u32			size;
-	t_u8			*ptr;
-	t_u8			*tmp;
-	static t_u32	obj_sizes[7] = {0,	\
-		sizeof(t_pobj_ambient),			\
-		sizeof(t_pobj_camera),			\
-		sizeof(t_pobj_light),			\
-		sizeof(t_pobj_sphere),			\
-		sizeof(t_pobj_plane),			\
-		sizeof(t_pobj_cylinder)};
-
-	size = obj_sizes[head->obj_type];
-	ptr = (t_u8 *)head;
-	tmp = ptr;
-	printf("t_pheader <%p> = \n{\n", head);
-	printf("  -> NEXT = %16p\n", (void *)*(t_u64 *)tmp);
-	printf("  -> TYPE = %16lx\n", *(t_u64 *)(tmp + sizeof(t_u64)));
-	printf("  -> POBJ = \n  {");
-	tmp += sizeof(t_pheader);
-	while (tmp - ptr < size)
-	{
-		if (!((t_uptr)tmp & 7))
-			printf("\n    ");
-		if (type == 16)
-			printf("0x%016lx", *(t_u64 *)tmp);
-		if (type == 2)
-		{
-			t_u32	i = -1, j = -1;
-			while (++i < 8)
-			{
-				j = -1;
-				while (++j < 8)
-					printf("%c", (*(tmp + i) & (1 << (7 - j))) ? '1' : '0');
-				printf(" ");
-			}
-		}
-		tmp += sizeof(t_u64);
-	}
-	printf("\n  }\n}\n\n");
-}
-
 t_pheader	*mrt_pobj_new(t_objtype type)
 {
 	t_u32			size;
@@ -101,4 +57,16 @@ void	mrt_pobj_push(t_pheader **head, t_pheader *pobj)
 		return ;
 	pobj->next = *head;
 	*head = pobj;
+}
+
+t_pheader	*mrt_pobj_pop(t_pheader **head)
+{
+	t_pheader	*obj;
+
+	if (!head)
+		return (NULL);
+	obj = *head;
+	if (obj)
+		*head = obj->next;
+	return (obj);
 }

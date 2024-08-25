@@ -1,14 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                        :::      ::::::::   //
-//   parser.h                                           :+:      :+:    :+:   //
-//                                                    +:+ +:+         +:+     //
-//   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
-//                                                +#+#+#+#+#+   +#+           //
-//   Created: 2024/08/13 20:08:34 by rgramati          #+#    #+#             //
-//   Updated: 2024/08/25 17:12:16 by rgramati         ###   ########.fr       //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/13 20:08:34 by rgramati          #+#    #+#             */
+/*   Updated: 2024/08/25 19:23:25 by rgramati         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef PARSER_H
 # define PARSER_H
@@ -16,7 +16,7 @@
 # include <mrtlib.h>
 # include <mrt/error.h>
 
-// PARSED OBJS HOLDERS ****************************************************** //
+/* PARSED OBJS HOLDERS ****************************************************** */
 
 typedef enum e_mrt_objects
 {
@@ -104,13 +104,12 @@ mrt_pobj_clean(t_pheader *list);
 void																		\
 mrt_pobj_push(t_pheader **head, t_pheader *pobj);
 
-void																		\
-mrt_pobj_print_bin(t_pheader *head, t_u32 type);
+t_pheader																	\
+*mrt_pobj_pop(t_pheader **head);
 
-// LINES ******************************************************************** //
+/* LINES ******************************************************************** */
 
 # define MRT_LINE_LEN 248
-
 typedef struct s_line
 {
 	struct s_line	*next;
@@ -132,7 +131,7 @@ mrt_line_push(t_line **list, t_line *new);
 t_u32																		\
 mrt_line_count(t_line *list);
 
-// PARSER ******************************************************************* //
+/* PARSER ******************************************************************* */
 
 typedef struct s_mrt_file
 {
@@ -160,5 +159,21 @@ mrt_parse_vec(t_mrt_vec *res, char *str, char **remain);
 
 t_error																		\
 mrt_parse_color(t_mrt_color *res, char *str, char **remain);
+
+
+/*	Formatted stream function.
+ *	128 bytes to write [] = 4 bytes
+ *	
+ *	[c|obj]		[c|emi]		[f|obj_r]	[f|emi_r]
+ *	[pos.x]		[pos.y]		[pos.z]		[pos.w]
+ *	[norm.x]	[norm.y]	[norm.z]	[norm.w]
+ *	[diameter]	[height]	[NULL]		[NULL]
+ *	
+ *	so for:
+ *		- sphere:	"!c +c +f +f !v +v !f", obj.color, obj.center, obj.diameter
+ *		- plane:	"!c +c +f +f !v !v", obj.color, obj.position, obj.norm
+ *		- cylinder:	"!c +c +f +f !v !v !f !f", obj.color, obj.center, obj.norm, obj.diameter, obj.height
+ *
+ */
 
 #endif	// PARSER_H
