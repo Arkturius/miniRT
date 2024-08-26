@@ -160,14 +160,20 @@ mrt_parse_vec(t_mrt_vec *res, char *str, char **remain);
 t_error																		\
 mrt_parse_color(t_mrt_color *res, char *str, char **remain);
 
+# define MRT_FORMAT_AMBIENT		"!c +c !f"
+# define MRT_FORMAT_CAMERA		"+c +c +f +f !v !v !i"
+# define MRT_FORMAT_LIGHT		"!c +c !f +f !v"
+# define MRT_FORMAT_SPHERE		"!c +c +f +f !v +v !f"
+# define MRT_FORMAT_PLANE		"!c +c +f +f !v !v"
+# define MRT_FORMAT_CYLINDER	"!c +c +f +f !v !v !f !f"
 
 /*	Formatted stream function.
  *	128 bytes to write [] = 4 bytes
  *	
- *	[c|obj]		[c|emi]		[f|obj_r]	[f|emi_r]
- *	[pos.x]		[pos.y]		[pos.z]		[pos.w]
- *	[norm.x]	[norm.y]	[norm.z]	[norm.w]
- *	[diameter]	[height]	[NULL]		[NULL]
+ *	[c|obj]			[c|emi]		[f|obj_r]	[f|emi_r]
+ *	[pos.x]			[pos.y]		[pos.z]		[pos.w]
+ *	[norm.x]		[norm.y]	[norm.z]	[norm.w]	norm for cam is orientation
+ *	[diameter/fov]	[height]	[NULL]		[NULL]
  *	
  *	so for:
  *		- sphere:	"!c +c +f +f !v +v !f", obj.color, obj.center, obj.diameter

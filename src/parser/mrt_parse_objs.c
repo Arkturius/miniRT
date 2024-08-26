@@ -56,7 +56,7 @@ static void	mrt_parse_obj_value(t_u8 **ptr, va_list ap, char *fmt)
 	*ptr += off;
 }
 
-t_error	mrt_parse_obj_format(t_objD *data, char *fmt, ...)
+static t_error	mrt_parse_obj_format(t_objD *data, char *fmt, ...)
 {
 	va_list	ap;
 	t_u8	*ptr;
@@ -80,93 +80,66 @@ t_error	mrt_parse_obj_format(t_objD *data, char *fmt, ...)
 	return (MRT_SUCCESS);
 }
 
+t_error	mrt_parse_obj_regular(t_object *object, t_pheader *header)
+{
+	t_pobj_sphere	*sp;
+	t_pobj_plane	*pl;
+	t_pobj_cylinder	*cy;
+	t_error			err;
+
+	err = MRT_SUCCESS;
+	if (object->type == MRT_OBJ_SPHERE)
+	{
+		sp = (t_pobj_sphere *)header;
+		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_SPHERE, \
+			sp->color, sp->center, sp->diameter);
+	}
+	if (object->type == MRT_OBJ_PLANE)
+	{
+		pl = (t_pobj_plane *)header;
+		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_PLANE, \
+			pl->color, pl->position, pl->norm);
+	}
+	if (object->type == MRT_OBJ_CYLINDER)
+	{
+		cy = (t_pobj_cylinder *)header;
+		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_CYLINDER, \
+			cy->color, cy->center, cy->norm, cy->diameter, cy->height);	
+	}
+	return (err);
+}
+
+t_error	mrt_parse_obj_config(t_object *object, t_pheader *header)
+{
+	t_pobj_ambient	*a;
+	t_pobj_camera	*c;
+	t_pobj_light	*l;
+	t_error			err;
+
+	err = MRT_SUCCESS;
+	if (object->type == MRT_OBJ_AMBIENT)
+	{
+		a = (t_pobj_ambient *)header;
+		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_AMBIENT, \
+			a->color, a->ratio);
+	}
+	if (object->type == MRT_OBJ_CAMERA)
+	{
+		c = (t_pobj_camera *)header;
+		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_CAMERA, \
+			c->viewpoint, c->orientation, c->fov);
+	}
+	if (object->type == MRT_OBJ_LIGHT)
+	{
+		l = (t_pobj_light *)header;
+		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_LIGHT, \
+			l->color, l->ratio, l->lightpoint);
+	}
+	return (err);
+}
+
+// ACTUALLY i want to merge this witrh pobjs parsing cause 2 formatted string functions when i can have only ONE
+
 // noice this is working. TODO implement real conversion from pobjs to objects
 // TODO implement meshes and triangle buffers
 // TODO bvh magic
-
-// #include <stdio.h>
-// #include <stdlib.h>
-//
-// int main(void)
-// {
-// 	t_objD	*test = malloc(sizeof(t_objD));
-//
-// 	mrt_parse_obj_format(test, "!c +c +f +f !v +v !f", (t_mrt_color){.argb = (t_u32)-1}, (t_mrt_vec){.x = 1, .y = 2, .z = 6.2364, .w = 0}, 0.3);
-//
-// 	printf("%3u %3f %3u %3f ;\n %3f %3f %3f %3f ;\n %3f %3f %3f %3f ;\n %3f %3f %3f %3f\n", test->mat.obj.argb, test->mat.obj_r, test->mat.emi.argb, test->mat.emi_r, test->pos.x, test->pos.y, test->pos.z, test->pos.w, test->norm.x, test->norm.y, test->norm.z, test->norm.w, test->data[0], test->data[1], test->data[2], test->data[3]);
-// }
-
-
-t_error	mrt_parse_obj_data(t_objD *data, t_pheader *header)
-{
-	if (header->obj_type == MRT_OBJ_AMBIENT)
-	{
-		data->mat.obj = ((t_pobj_ambient *) header)->color;
-		data->mat.obj_r = ((t_pobj_ambient *) header)->ratio;
-	}
-	if (header->obj_type != MRT_OBJ_AMBIENT && \
-		header->obj_type != MRT_OBJ_LIGHT && \
-		header->obj_type != MRT_OBJ_AMBIENT)
-		data->pos = *(t_mrt_vec *)((t_u8 *)header + sizeof(t_pheader));
-	else
-		data->pos = (t_mrt_vec){0};
-	if (header->obj_type == MRT_OBJ_PLANE || header->obj_type == MRT_OBJ_CYLINDER)
-		data->norm = *(t_mrt_vec *)((t_u8 *)header + sizeof(t_pheader) + sizeof(t_mrt_vec));
-	else
-		data->norm = (t_mrt_vec){0};
-	if (header->obj_type == MRT_OBJ_SPHERE)
-		data->data[0] = *(t_f32 *)((t_u8 *)header + sizeof(t_pheader) + sizeof(t_mrt_vec));
-	if (header->obj_type == MRT_OBJ_CYLINDER)
-		data->data[0] = *(t_f32 *)((t_u8 *)header + sizeof(t_pheader) + 2 * sizeof(t_mrt_vec));
-	if (header->obj_type == MRT_OBJ_CYLINDER)
-		data->data[1] = *(t_f32 *)((t_u8 *)header + sizeof(t_pheader) + 2 * sizeof(t_mrt_vec) + sizeof(t_f32));
-	return (MRT_SUCCESS);
-}
-
-t_error	mrt_parse_obj_color(t_objD *data, t_pheader *header)
-{
-	data->mat.obj_r = 1;
-	if (header->obj_type == MRT_OBJ_SPHERE)
-		data->mat.obj = ((t_pobj_sphere *)header)->color;
-	if (header->obj_type == MRT_OBJ_PLANE)
-		data->mat.obj = ((t_pobj_plane *)header)->color;
-	if (header->obj_type == MRT_OBJ_CYLINDER)
-		data->mat.obj = ((t_pobj_cylinder *)header)->color;
-	return (MRT_SUCCESS);
-}
-
-t_error	mrt_parse_obj(t_object *object, t_pheader *header)
-{
-	static int	id = 0;
-
-	object->type = header->obj_type;
-	object->id = id++;
-	mrt_parse_obj_data(&object->data, header);
-	mrt_parse_obj_color(&object->data, header);
-	return (MRT_SUCCESS);
-}
-
-t_error mrt_parse_objs_all(t_scene *scene, t_file *file)
-{
-	(void) scene;
-	(void) file;
-	t_pheader	*header;
-	t_object	*object;
-	// t_u32		count;
-
-	// count = 0;
-	scene->objects = mrt_obj_chunk_init();
-	scene->nobj = 0;
-	if (!scene->objects)
-		return (MRT_ERR_ALLOC);
-	while (file->objs)
-	{
-		header = mrt_pobj_pop(&file->objs);
-		object = mrt_obj_alloc(scene->objects, MRT_TRUE);
-		mrt_parse_obj(object, header);
-		scene->nobj++;
-		// count++;
-	}
-	// mrt_io_save("objects.mrt", "@> ", scene->objects, count + 1, sizeof(t_object));
-	return (MRT_FAIL);
-}

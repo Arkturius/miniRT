@@ -19,6 +19,8 @@
 # define MRT_H	768
 # define MRT_W	1367
 
+# define MRT_PI	3.141592
+
 typedef struct s_mlx
 {
 	void	*app;
@@ -53,6 +55,7 @@ typedef struct s_mrt_aabb
 	t_mrt_vec	min;
 	t_mrt_vec	max;
 }	t_AABB;
+
 
 typedef struct s_mrt_material
 {
@@ -101,15 +104,39 @@ void		mrt_obj_free(t_obj_chunk *chunk);
 
 // SCENE HANDLE
 
-
 typedef struct s_mrt_scene
 {
 	t_u32		nobj;
 	t_u32		nlig;
+	t_mlx		mlx;
+	t_object	config[4];
 	t_obj_chunk	*objects;
 	// t_camera	cam;
 }	t_scene;
 
-t_error		mrt_parse_objs_all(t_scene *scene, t_file *file);
+typedef struct s_mrt_hit
+{
+	t_mrt_vec	point;
+	t_mrt_color	color;
+	t_bool		hit;
+	t_f32		dist;
+}	t_hit;
+
+typedef struct s_mrt_ray
+{
+	t_mrt_vec	origin;
+	t_mrt_vec	direction;
+	t_hit		hit;
+}	t_ray;
+
+t_error		mrt_scene_obj_init(t_scene *scene, t_file *file);
+
+t_error		mrt_parse_obj_config(t_object *object, t_pheader *header);
+
+t_error		mrt_parse_obj_regular(t_object *object, t_pheader *header);
+
+t_error		mrt_scene_aabb_init(t_scene *scene);
+
+int			mrt_scene_render(void *scene_ptr);
 
 #endif
