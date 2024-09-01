@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mrt_parse.c                                        :+:      :+:    :+:   */
+/*   mrt_parse_file.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
+/*   By: rems <rems@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/13 20:43:35 by rgramati          #+#    #+#             */
-/*   Updated: 2024/08/18 21:30:54 by rgramati         ###   ########.fr       */
+/*   Updated: 2024/09/01 23:58:21 by rems             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,16 +88,22 @@ static t_error	mrt_parse_file_lines(t_file *parser)
 	return (MRT_FAIL);
 }
 
+/**
+ * @todo	implement file extension recognition in mrt_io
+ * 			support live scene opening
+ * 			2nd parameter to check extension
+ * 			support different type of files for miniRT
+ */
 static t_error	mrt_parse_file_extension(const char *filename)
 {
 	char	*point;
 
 	while (1)
 	{
-		point = mrt_strrchr(filename, '.'); // not implemented
+		point = mrt_strrchr(filename, '.');
 		if (!point)
 			break ;
-		if (mrt_strcmp(filename, ".rt"))
+		if (mrt_strcmp(point, ".rt"))
 			break ;
 		return (MRT_SUCCESS);
 	}
