@@ -23,8 +23,6 @@ t_error	mrt_parse_int(int *res, char *str, char **remain)
 	if (err)
 		return (err);
 	*res = i;
-	while (mrt_isspace(*str))
-		++str;
 	*remain = str;
 	return (MRT_SUCCESS);
 }
@@ -38,8 +36,6 @@ t_error	mrt_parse_float(float *res, char *str, char **remain)
 	if (err)
 		return (err);
 	*res = f;
-	while (mrt_isspace(*str))
-		++str;
 	*remain = str;
 	return (MRT_SUCCESS);
 }
@@ -52,11 +48,9 @@ t_error	mrt_parse_vec(t_mrt_vec *res, char *str, char **remain)
 	{
 		if (mrt_parse_float(&v.x, str, &str))
 			break ;
-		++str;
-		if (mrt_parse_float(&v.y, str, &str))
+		if (*str++ != ',' || mrt_parse_float(&v.y, str, &str))
 			break ;
-		++str;
-		if (mrt_parse_float(&v.z, str, &str))
+		if (*str++ != ',' || mrt_parse_float(&v.z, str, &str))
 			break ;
 		v.w = 0;
 		*res = v;
@@ -77,11 +71,9 @@ t_error	mrt_parse_color(t_mrt_color *res, char *str, char **remain)
 	{
 		if (mrt_parse_int(tmp, str, &str))
 			break ;
-		++str;
-		if (mrt_parse_int(tmp + 1, str, &str))
+		if (*str++ != ',' || mrt_parse_int(tmp + 1, str, &str))
 			break ;
-		++str;
-		if (mrt_parse_int(tmp + 2, str, &str))
+		if (*str++ != ',' || mrt_parse_int(tmp + 2, str, &str))
 			break ;
 		c = (t_mrt_color){.a = 255, .r = (t_u8) *(tmp),
 			.g = (t_u8) *(tmp + 1),

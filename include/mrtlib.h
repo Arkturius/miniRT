@@ -82,7 +82,11 @@ size_t	mrt_strlen(const char *str);
 
 char	*mrt_strdup(const char *str);
 
+int		mrt_strcmp(const char *s1, const char *s2);
+
 char	*mrt_strchr(const char *str, char c);
+
+char	*mrt_strrchr(const char *str, char c);
 
 int		mrt_isspace(int c);
 

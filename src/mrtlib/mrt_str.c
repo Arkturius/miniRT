@@ -39,6 +39,18 @@ size_t	mrt_strlen(const char *str)
 	return (byte_ptr - (t_u8 *)str);
 }
 
+int	mrt_strcmp(const char *s1, const char *s2)
+{
+	if (!s1 || !s2)
+		return (s1 != s2);
+	while (*s1 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+	}
+	return (*s1 - *s2);
+}
+
 char	*mrt_strchr(const char *str, char c)
 {
 	t_u8	*byte_ptr;
@@ -62,6 +74,31 @@ char	*mrt_strchr(const char *str, char c)
 	while (*byte_ptr && *byte_ptr != c)
 		++byte_ptr;
 	return ((char *)byte_ptr);
+}
+
+char	*mrt_strrchr(const char *str, char c)
+{
+	t_u8	*byte_ptr;
+	t_u64	*long_ptr;
+	t_u64	c_mask;
+
+	byte_ptr = (t_u8 *)str + mrt_strlen(str) - 1;
+	while (*byte_ptr != c && (t_uptr)byte_ptr & (sizeof(t_u64) - 1))
+	{
+		if (byte_ptr == (t_u8 *)str)
+			return (NULL);
+		--byte_ptr;
+	}
+	if (*byte_ptr == c)
+		return ((char *)byte_ptr);
+	c_mask = ONES * c;
+	long_ptr = (t_u64 *)byte_ptr;
+	while (!(((*(long_ptr - 1) ^ c_mask) - ONES) & ~((*(long_ptr - 1) ^ c_mask)) & HIGHS))
+		--long_ptr;
+	byte_ptr = (t_u8 *)long_ptr;
+	while (byte_ptr != (t_u8 *)str && *byte_ptr != c)
+		--byte_ptr;
+	return ((char *)((*byte_ptr == c) * (t_uptr)byte_ptr));
 }
 
 char	*mrt_strdup(const char *str)

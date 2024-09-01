@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "mrtlib.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -82,9 +81,26 @@ static t_error	mrt_parse_file_lines(t_file *parser)
 		if (mrt_parse_line_join(&data, file, mrt_line_count(file) - 1))
 			break ;
 		parser->data = data;
+		mrt_line_clean(file);
 		return (MRT_SUCCESS);
 	}
 	mrt_line_clean(file);
+	return (MRT_FAIL);
+}
+
+static t_error	mrt_parse_file_extension(const char *filename)
+{
+	char	*point;
+
+	while (1)
+	{
+		point = mrt_strrchr(filename, '.'); // not implemented
+		if (!point)
+			break ;
+		if (mrt_strcmp(filename, ".rt"))
+			break ;
+		return (MRT_SUCCESS);
+	}
 	return (MRT_FAIL);
 }
 
@@ -98,6 +114,9 @@ t_error	mrt_parse_file(const char *filename, t_file *parser)
 		if (!parser || !filename)
 			break ;
 		parser->filename = filename;
+		err = MRT_ERR_FILE_EXTE;
+		if (mrt_parse_file_extension(filename))
+			break ;
 		err = MRT_ERR_FILE_PERM;
 		if (mrt_io_open_file(filename, &parser->fd, MRT_OPEN_READ))
 			break ;

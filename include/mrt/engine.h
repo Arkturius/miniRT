@@ -30,13 +30,15 @@ typedef struct s_mlx
 
 typedef enum e_mrt_error	t_error;
 
+typedef struct s_mrt_scene	t_scene;
+
 /* MLX FUNCS **************************************************************** */
 
 t_error	mrt_mlx_init(t_mlx *mlx);
 
-void	mrt_mlx_clean(t_mlx *mlx);
+void	mrt_mlx_clean(t_mlx mlx);
 
-t_error	mrt_mlx_hook_setup(t_mlx *mlx);
+t_error	mrt_mlx_hook_setup(t_scene *scene);
 
 /* MLX HOOKS **************************************************************** */
 
@@ -67,30 +69,29 @@ typedef struct s_mrt_material
 
 // OBJECT STRUCTS
 
-typedef struct s_mrt_obj_data
-{
-	t_material	mat;
-	t_mrt_vec	pos;
-	t_mrt_vec	norm;
-	t_f32		data[4];
-}	t_objD;
+# define MRT_OBJ_CAMERA_FOV			0
+# define MRT_OBJ_SPHERE_DIAMETER	0
+# define MRT_OBJ_CYLINDER_DIAMETER	0
+# define MRT_OBJ_CYLINDER_HEIGHT	1
 
 typedef struct s_mrt_object
 {
-	t_u32	type;
-	t_u32	id;
-	char	padding[24];
-	t_AABB	aabb;
-	t_objD	data;
-}	__attribute__((aligned(128))) t_object;
+	t_u32		type;
+	t_u32		id;
+	t_f32		data[2];
+	t_mrt_vec	pos;
+	t_mrt_vec	norm;
+	t_material	mat;
+}	t_object;
 
-# define MRT_OBJ_CHUNK_CAP	31
+# define MRT_OBJ_CHUNK_CAP	63
 
 typedef struct s_mrt_obj_chunk
 {
 	struct s_mrt_obj_chunk	*next;
 	t_u32					capacity;
 	t_u32					size;
+	t_u8					padding[48];
 	t_object				objs[MRT_OBJ_CHUNK_CAP];
 }	t_obj_chunk;
 
@@ -106,12 +107,12 @@ void		mrt_obj_free(t_obj_chunk *chunk);
 
 typedef struct s_mrt_scene
 {
+	t_mlx		mlx;
 	t_u32		nobj;
 	t_u32		nlig;
-	t_mlx		mlx;
-	t_object	config[4];
 	t_obj_chunk	*objects;
-	// t_camera	cam;
+	t_u8		*map;
+	t_object	config[4];
 }	t_scene;
 
 typedef struct s_mrt_hit
@@ -129,13 +130,9 @@ typedef struct s_mrt_ray
 	t_hit		hit;
 }	t_ray;
 
-t_error		mrt_scene_obj_init(t_scene *scene, t_file *file);
+t_error		mrt_scene_init(t_file *file, t_scene *scene);
 
-t_error		mrt_parse_obj_config(t_object *object, t_pheader *header);
-
-t_error		mrt_parse_obj_regular(t_object *object, t_pheader *header);
-
-t_error		mrt_scene_aabb_init(t_scene *scene);
+void		mrt_scene_clean(t_scene *scene);
 
 int			mrt_scene_render(void *scene_ptr);
 

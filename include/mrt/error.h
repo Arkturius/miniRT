@@ -22,8 +22,9 @@ typedef enum e_mrt_error
 	MRT_ERR_ALLOC = 2,
 	MRT_ERR_MLX,
 	MRT_ERR_FILE_NONE,
+	MRT_ERR_FILE_EXTE,
 	MRT_ERR_FILE_PERM,
-	MRT_ERR_FILE_PROC
+	MRT_ERR_FILE_PROC,
 }	t_error;
 
 t_error	mrt_error_print(t_error type, void *data);

@@ -29,84 +29,6 @@ typedef enum e_mrt_objects
 	MRT_OBJ_CYLINDER
 }	t_objtype;
 
-typedef struct s_pobj_header	t_pheader;
-
-typedef t_error	(mrt_parse_pobj_func)(t_pheader **, char *, char **);
-
-# define MRT_PFORMAT			"ifvc"
-struct	s_pobj_header
-{
-	t_pheader	*next;
-	t_u32		obj_type;
-};
-
-# define MRT_PFORMAT_AMBIENT	"!f !c"
-typedef struct s_parsed_ambient
-{
-	t_pheader	header;
-	t_f32		ratio;
-	t_mrt_color	color;
-}	t_pobj_ambient;
-
-# define MRT_PFORMAT_CAMERA		"!v !v !i"
-typedef struct s_parsed_camera
-{
-	t_pheader	header;
-	t_mrt_vec	viewpoint;
-	t_mrt_vec	orientation;
-	t_s32		fov;
-}	t_pobj_camera;
-
-# define MRT_PFORMAT_LIGHT		"!v !f !c"
-typedef struct s_parsed_light
-{
-	t_pheader	header;
-	t_mrt_vec	lightpoint;
-	t_f32		ratio;
-	t_mrt_color	color;
-}	t_pobj_light;
-
-# define MRT_PFORMAT_SPHERE		"!v !f !c"
-typedef struct s_parsed_sphere
-{
-	t_pheader	header;
-	t_mrt_vec	center;
-	t_f32		diameter;
-	t_mrt_color	color;
-}	t_pobj_sphere;
-
-# define MRT_PFORMAT_PLANE		"!v !v !c"
-typedef struct s_parsed_plane
-{
-	t_pheader	header;
-	t_mrt_vec	position;
-	t_mrt_vec	norm;
-	t_mrt_color	color;
-}	t_pobj_plane;
-
-# define MRT_PFORMAT_CYLINDER	"!v !v !f !f !c"
-typedef struct s_parsed_cylinder
-{
-	t_pheader	header;
-	t_mrt_vec	center;
-	t_mrt_vec	norm;
-	t_f32		diameter;
-	t_f32		height;
-	t_mrt_color	color;
-}	t_pobj_cylinder;
-
-t_pheader																	\
-*mrt_pobj_new(t_objtype type);
-
-void																		\
-mrt_pobj_clean(t_pheader *list);
-
-void																		\
-mrt_pobj_push(t_pheader **head, t_pheader *pobj);
-
-t_pheader																	\
-*mrt_pobj_pop(t_pheader **head);
-
 /* LINES ******************************************************************** */
 
 # define MRT_LINE_LEN 248
@@ -137,8 +59,6 @@ typedef struct s_mrt_file
 {
 	const char	*filename;
 	t_s32		fd;
-	t_u32		obj_count;
-	t_pheader	*objs;
 	char		*data;
 }	t_file;
 
@@ -160,20 +80,42 @@ mrt_parse_vec(t_mrt_vec *res, char *str, char **remain);
 t_error																		\
 mrt_parse_color(t_mrt_color *res, char *str, char **remain);
 
-# define MRT_FORMAT_AMBIENT		"!c +c !f"
-# define MRT_FORMAT_CAMERA		"+c +c +f +f !v !v !i"
-# define MRT_FORMAT_LIGHT		"!c +c !f +f !v"
-# define MRT_FORMAT_SPHERE		"!c +c +f +f !v +v !f"
-# define MRT_FORMAT_PLANE		"!c +c +f +f !v !v"
-# define MRT_FORMAT_CYLINDER	"!c +c +f +f !v !v !f !f"
+# define MRT_FORMAT				"ifcv"
 
-/*	Formatted stream function.
+# define MRT_FORMAT_AMBIENT		"56 !f 48 !c"
+
+# define MRT_FORMAT_CAMERA		"16 !v 32 !v 8 !i"
+
+# define MRT_FORMAT_LIGHT		"16 !v 56 !f 48 !c"
+
+# define MRT_FORMAT_SPHERE		"16 !v 8 !f 48 !c"
+
+# define MRT_FORMAT_PLANE		"16 !v 32 !v 48 !c"
+
+# define MRT_FORMAT_CYLINDER	"16 !v 32 !v 8 !f 12 !f 48 !c"
+
+// typedef struct s_mrt_object
+// {
+// 	t_u32		type;
+// 	t_u32		id;
+// 	t_f32		data[2];
+// 	t_mrt_vec	pos;
+// 	t_mrt_vec	norm;
+// 	t_material	mat;
+// }	t_object;
+
+typedef struct s_mrt_object	t_object;
+
+t_error																		\
+mrt_parse_obj(t_object *ptr, char *str, char **remain);
+
+	/*	Formatted stream function.
  *	128 bytes to write [] = 4 bytes
  *	
- *	[c|obj]			[c|emi]		[f|obj_r]	[f|emi_r]
- *	[pos.x]			[pos.y]		[pos.z]		[pos.w]
- *	[norm.x]		[norm.y]	[norm.z]	[norm.w]	norm for cam is orientation
- *	[diameter/fov]	[height]	[NULL]		[NULL]
+ *	[type]			[id]		[diameter/fov]	[height]
+ *	[pos.x]			[pos.y]		[pos.z]			[pos.w]
+ *	[norm.x]		[norm.y]	[norm.z]		[norm.w]	norm for cam is orientation
+ *	[c|obj]			[c|emi]		[f|obj_r]		[f|emi_r]
  *	
  *	so for:
  *		- sphere:	"!c +c +f +f !v +v !f", obj.color, obj.center, obj.diameter

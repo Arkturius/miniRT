@@ -17,129 +17,93 @@
 #include <mrt/parser.h>
 #include <mrt/engine.h>
 
-static void mrt_parse_obj_step(t_u8 **ptr, char *fmt)
+static t_error	mrt_parse_obj_value(t_u8 *ptr, char *fmt, char *str, char **remain)
 {
-	t_u32	off;
+	t_error	err;
 
-	off = 0;
+	err = MRT_FAIL;
 	if (*fmt == 'v')
-		off = sizeof(t_mrt_vec);
-	else
-		off = sizeof(int);
-	*ptr += off;
-}
-
-static void	mrt_parse_obj_value(t_u8 **ptr, va_list ap, char *fmt)
-{
-	t_u32		off;
-
-	if (*fmt == 'v')
-	{
-		*(t_mrt_vec *)*ptr = va_arg(ap, t_mrt_vec);
-		off = sizeof(t_mrt_vec);
-	}
+		err = mrt_parse_vec((t_mrt_vec *)ptr, str, &str);
 	if (*fmt == 'f')
-	{
-		*(t_f32 *)*ptr = (t_f32) va_arg(ap, double);
-		off = sizeof(t_f32);
-	}
+		err = mrt_parse_float((t_f32 *)ptr, str, &str);
 	if (*fmt == 'i')
-	{
-		*(t_s32 *)*ptr = (t_s32) va_arg(ap, t_s32);
-		off = sizeof(t_s32);
-	}
+		err = mrt_parse_int((t_s32 *)ptr, str, &str);
 	if (*fmt == 'c')
-	{
-		*(t_u32 *)*ptr = (t_u32) va_arg(ap, t_u32);
-		off = sizeof(t_u32);
-	}
-	*ptr += off;
+		err = mrt_parse_color((t_mrt_color *)ptr, str, &str);
+	if (err == MRT_SUCCESS)
+		*remain = str;
+	return (err);
 }
 
-static t_error	mrt_parse_obj_format(t_objD *data, char *fmt, ...)
+static t_error	mrt_parse_obj_format(t_u8 *ptr, char *fmt, char *str, char **remain)
 {
-	va_list	ap;
-	t_u8	*ptr;
+	t_s32	off_err;
+	t_u32	offset;
+	t_error	err;
 
-	ptr = (t_u8 *)data;
 	if (!ptr)
 		return (MRT_FAIL);
-	va_start(ap, fmt);
-	while (*fmt && *(fmt + 1))
-	{
-		if (mrt_strchr(MRT_PFORMAT, *(fmt + 1)))
-		{
-			if (*fmt == '!')
-				mrt_parse_obj_value(&ptr, ap, ++fmt);
-			else if (*fmt == '+')
-				mrt_parse_obj_step(&ptr, ++fmt);
-		}
-		fmt++;
+	err = MRT_SUCCESS;
+	while (*fmt && fmt[1] && err == MRT_SUCCESS)
+	{	
+		offset = mrt_strtoi(fmt, &fmt, &off_err);
+		if (off_err)
+			return (MRT_FAIL);
+		while (*fmt && mrt_isspace((unsigned char)*fmt))
+			++fmt;
+		if (*fmt == '!' && mrt_strchr(MRT_FORMAT, *(fmt + 1)))
+			err = mrt_parse_obj_value(ptr + offset, ++fmt, str, &str);
+		++fmt;
 	}
-	va_end(ap);
+	*remain = str;
+	return (err);
+}
+
+static t_error	mrt_parse_obj_type(t_objtype *type, char *str, char **remain)
+{
+	const char	*ids[7] = {"A", "C", "L", "sp", "pl", "cy", NULL};
+	t_u32		index;
+
+	if (!*str)
+		return (MRT_FAIL);
+	index = 1;
+	while (ids[index - 1])
+	{
+		if (index < 4 && *(ids[index - 1]) == *str)
+			break ;
+		else if (index > 3 && *(t_u16 *)ids[index - 1] == *(t_u16 *)str)
+			break ;
+		++index;
+	}
+	if (index == 6)
+		return (MRT_FAIL);
+	*remain = str + 1 + (index > 3);
+	*type = (t_objtype)index;
 	return (MRT_SUCCESS);
 }
 
-t_error	mrt_parse_obj_regular(t_object *object, t_pheader *header)
+t_error	mrt_parse_obj(t_object *ptr, char *str, char **remain)
 {
-	t_pobj_sphere	*sp;
-	t_pobj_plane	*pl;
-	t_pobj_cylinder	*cy;
-	t_error			err;
+	static char	config[3];
+	static char	*formats[7] = {" ", \
+		MRT_FORMAT_AMBIENT, \
+		MRT_FORMAT_CAMERA, \
+		MRT_FORMAT_LIGHT, \
+		MRT_FORMAT_SPHERE, \
+		MRT_FORMAT_PLANE, \
+		MRT_FORMAT_CYLINDER};
 
-	err = MRT_SUCCESS;
-	if (object->type == MRT_OBJ_SPHERE)
+	if (mrt_parse_obj_type(&ptr->type, str, &str))
+		return (MRT_FAIL);
+	if (ptr->type < MRT_OBJ_SPHERE)
 	{
-		sp = (t_pobj_sphere *)header;
-		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_SPHERE, \
-			sp->color, sp->center, sp->diameter);
+		if (config[ptr->type - 1])
+			return (MRT_FAIL);
+		config[ptr->type - 1] = 1;
 	}
-	if (object->type == MRT_OBJ_PLANE)
-	{
-		pl = (t_pobj_plane *)header;
-		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_PLANE, \
-			pl->color, pl->position, pl->norm);
-	}
-	if (object->type == MRT_OBJ_CYLINDER)
-	{
-		cy = (t_pobj_cylinder *)header;
-		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_CYLINDER, \
-			cy->color, cy->center, cy->norm, cy->diameter, cy->height);	
-	}
-	return (err);
+	if (mrt_parse_obj_format((t_u8 *)ptr, formats[ptr->type], str, &str))
+		return (MRT_FAIL);
+	*remain = str;
+	return (MRT_SUCCESS);
 }
 
-t_error	mrt_parse_obj_config(t_object *object, t_pheader *header)
-{
-	t_pobj_ambient	*a;
-	t_pobj_camera	*c;
-	t_pobj_light	*l;
-	t_error			err;
-
-	err = MRT_SUCCESS;
-	if (object->type == MRT_OBJ_AMBIENT)
-	{
-		a = (t_pobj_ambient *)header;
-		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_AMBIENT, \
-			a->color, a->ratio);
-	}
-	if (object->type == MRT_OBJ_CAMERA)
-	{
-		c = (t_pobj_camera *)header;
-		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_CAMERA, \
-			c->viewpoint, c->orientation, c->fov);
-	}
-	if (object->type == MRT_OBJ_LIGHT)
-	{
-		l = (t_pobj_light *)header;
-		err = mrt_parse_obj_format(&object->data, MRT_FORMAT_LIGHT, \
-			l->color, l->ratio, l->lightpoint);
-	}
-	return (err);
-}
-
-// ACTUALLY i want to merge this witrh pobjs parsing cause 2 formatted string functions when i can have only ONE
-
-// noice this is working. TODO implement real conversion from pobjs to objects
-// TODO implement meshes and triangle buffers
-// TODO bvh magic

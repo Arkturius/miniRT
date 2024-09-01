@@ -16,32 +16,34 @@
 
 #include <mrt/engine.h>
 
-int	mrt_mlx_hook_keyup(int key, void *mlx_ptr)
+int	mrt_mlx_hook_keyup(int key, void *scene_ptr)
 {
-	t_mlx	*mlx;
+	t_scene	*scene;
 
-	mlx = (t_mlx *)mlx_ptr;
-	(void) mlx;
-	(void) key;
+	scene = (t_scene *)scene_ptr;
+	if (scene->map[key])
+		scene->map[key] = 0;
 	return (0);
 }
 
-int	mrt_mlx_hook_keydown(int key, void *mlx_ptr)
+int	mrt_mlx_hook_keydown(int key, void *scene_ptr)
 {
-	t_mlx	*mlx;
+	t_scene	*scene;
 
-	mlx = (t_mlx *)mlx_ptr;
+	scene = (t_scene *)scene_ptr;
 	if (key == SDL_SCANCODE_ESCAPE)
-		mlx_loop_end(mlx->app);
+		mlx_loop_end(scene->mlx.app);
+	if (!scene->map[key])
+		scene->map[key] = 1;
 	return (0);
 }
 
-int	mrt_mlx_hook_win(int key, void *mlx_ptr)
+int	mrt_mlx_hook_win(int key, void *scene_ptr)
 {
-	t_mlx	*mlx;
+	t_scene	*scene;
 
-	mlx = (t_mlx *)mlx_ptr;
+	scene = (t_scene *)scene_ptr;
 	if (!key)
-		mlx_loop_end(mlx->app);
+		mlx_loop_end(scene->mlx.app);
 	return (0);
 }
