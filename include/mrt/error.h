@@ -25,6 +25,9 @@ typedef enum e_mrt_error
 	MRT_ERR_FILE_EXTE,
 	MRT_ERR_FILE_PERM,
 	MRT_ERR_FILE_PROC,
+	MRT_ERR_FMT_TYPE,
+	MRT_ERR_FMT_CONFIG,
+	MRT_ERR_FMT_DATA,
 }	t_error;
 
 t_error	mrt_error_print(t_error type, void *data);

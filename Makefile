@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/08/27 17:37:37 by rgramati         ###   ########.fr        #
+#    Updated: 2024/09/05 20:55:47 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,8 @@ SRC				=	main.c						\
 					objects/mrt_aabb.c			\
 					objects/mrt_obj_chunk.c		\
 					render/mrt_scene.c			\
-					render/mrt_scene_render.c
+					render/mrt_scene_render.c	\
+					save/mrt_scene_file.c
 
 SRC_DIR			=	src
 SRC				:=	$(addprefix $(SRC_DIR)/, $(SRC))
@@ -54,7 +55,7 @@ MLX_DIR			=	third-party/MacroLibX
 MLX				=	$(MLX_DIR)/libmlx.so
 
 CC				=	gcc
-CFLAGS			= 	-Wall -Wextra -Werror -g3 -O3
+CFLAGS			= 	-Wall -Wextra -Werror -O3
 
 COPTS			= 	-I $(INCLUDE_DIR) -I $(MLX_DIR)/$(INCLUDE_DIR)s
 LDFLAGS			=	-lSDL2 -lm
@@ -65,7 +66,7 @@ ifeq ($(DEBUG), 1)
 endif
 
 ifeq ($(LAZY), 1)
-	CFLAGS		=	-Wall -Wextra -g3
+	CFLAGS		=	-Wall -Wextra -O3
 endif
 
 FILE			=	$(shell ls -lR $(SRC_DIR) | grep -F .c | wc -l)

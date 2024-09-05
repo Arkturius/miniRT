@@ -21,15 +21,14 @@
 /**
  * @todo	move those functions away, maybe i need more of those
  */
-__attribute__((always_inline)) inline t_u32	mrt_is_aligned(void *p, t_u32 size)
+static t_u64	mrt_is_aligned(void *p, t_u32 size)
 {
-	return (!(t_uptr)p & (size - 1));
+	return (!((t_uptr)p & (size - 1)));
 }
 
-__attribute__((always_inline)) inline t_u32	mrt_has_zeros(t_u64 l, char c)
+static t_u64	mrt_has_zeros(t_u64 l, char c)
 {
-	if (c)
-		l ^= ONES * c;
+	l ^= (ONES * c);
 	return (((l - ONES) & ~(l) & HIGHS));
 }
 
@@ -81,7 +80,7 @@ char	*mrt_strchr(const char *str, char c)
 	if (*byte_ptr == c)
 		return ((char *)byte_ptr);
 	long_ptr = (t_u64 *)byte_ptr;
-	while (!mrt_has_zeros(*long_ptr, c))
+	while (!mrt_has_zeros(*long_ptr, 0) && !mrt_has_zeros(*long_ptr, c))
 		++long_ptr;
 	byte_ptr = (t_u8 *)long_ptr;
 	while (*byte_ptr && *byte_ptr != c)
@@ -106,7 +105,7 @@ char	*mrt_strrchr(const char *str, char c)
 	if (*byte_ptr == c)
 		return ((char *)byte_ptr);
 	long_ptr = (t_u64 *)byte_ptr;
-	while ((t_u8 *)long_ptr - (t_u8 *)str > 8 && !mrt_has_zeros(*long_ptr, c))
+	while ((t_u8 *)long_ptr - (t_u8 *)str > 8 && !mrt_has_zeros(*(long_ptr - 1), c))
 		--long_ptr;
 	byte_ptr = (t_u8 *)long_ptr;
 	while (*byte_ptr != c)

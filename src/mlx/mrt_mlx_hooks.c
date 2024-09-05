@@ -16,6 +16,16 @@
 
 #include <mrt/engine.h>
 
+int	mrt_mlx_hook_mousedown(int key, void *scene_ptr)
+{
+	t_scene	*scene;
+
+	scene = (t_scene *)scene_ptr;
+	printf("%d\n", key);
+	(void) scene;
+	return (0);
+}
+
 int	mrt_mlx_hook_keyup(int key, void *scene_ptr)
 {
 	t_scene	*scene;
@@ -35,6 +45,7 @@ int	mrt_mlx_hook_keydown(int key, void *scene_ptr)
 		mlx_loop_end(scene->mlx.app);
 	if (!scene->map[key])
 		scene->map[key] = 1;
+	mrt_scene_render(scene);
 	return (0);
 }
 

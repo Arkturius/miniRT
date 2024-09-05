@@ -66,9 +66,6 @@ t_error																		\
 mrt_parse_file(const char *name, t_file *file);
 
 t_error																		\
-mrt_parse_pobj_all(t_file *file);
-
-t_error																		\
 mrt_parse_int(int *res, char *str, char **remain);
 
 t_error																		\
@@ -94,22 +91,14 @@ mrt_parse_color(t_mrt_color *res, char *str, char **remain);
 
 # define MRT_FORMAT_CYLINDER	"16 !v 32 !v 8 !f 12 !f 48 !c"
 
-// typedef struct s_mrt_object
-// {
-// 	t_u32		type;
-// 	t_u32		id;
-// 	t_f32		data[2];
-// 	t_mrt_vec	pos;
-// 	t_mrt_vec	norm;
-// 	t_material	mat;
-// }	t_object;
-
 typedef struct s_mrt_object	t_object;
 
-t_error																		\
-mrt_parse_obj(t_object *ptr, char *str, char **remain);
+typedef struct s_mrt_scene	t_scene;
 
-	/*	Formatted stream function.
+t_error																		\
+mrt_parse_obj(t_scene *scene, char *str, char **remain);
+
+/*	Formatted stream function.
  *	128 bytes to write [] = 4 bytes
  *	
  *	[type]			[id]		[diameter/fov]	[height]
@@ -117,11 +106,6 @@ mrt_parse_obj(t_object *ptr, char *str, char **remain);
  *	[norm.x]		[norm.y]	[norm.z]		[norm.w]	norm for cam is orientation
  *	[c|obj]			[c|emi]		[f|obj_r]		[f|emi_r]
  *	
- *	so for:
- *		- sphere:	"!c +c +f +f !v +v !f", obj.color, obj.center, obj.diameter
- *		- plane:	"!c +c +f +f !v !v", obj.color, obj.position, obj.norm
- *		- cylinder:	"!c +c +f +f !v !v !f !f", obj.color, obj.center, obj.norm, obj.diameter, obj.height
- *
- */
+*/
 
 #endif	// PARSER_H

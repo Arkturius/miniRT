@@ -57,6 +57,6 @@ t_u32	mrt_mlx_hook_setup(t_scene *scene)
 	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_KEYDOWN, mrt_mlx_hook_keydown, scene);
 	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_KEYUP, mrt_mlx_hook_keyup, scene);
 	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_WINDOW_EVENT, mrt_mlx_hook_win, scene);
-	mlx_loop_hook(scene->mlx.app, mrt_scene_render, (void *)scene);
+	// mlx_loop_hook(scene->mlx.app, mrt_scene_render, (void *)scene);
 	return (MRT_SUCCESS);
 }

@@ -1,14 +1,14 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   mrt_parse_objs.c                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/25 18:41:03 by rgramati          #+#    #+#             */
-/*   Updated: 2024/08/25 19:39:26 by rgramati         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+// ************************************************************************** //
+//                                                                            //
+//                                                        :::      ::::::::   //
+//   mrt_parse_objs.c                                   :+:      :+:    :+:   //
+//                                                    +:+ +:+         +:+     //
+//   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
+//                                                +#+#+#+#+#+   +#+           //
+//   Created: 2024/09/04 18:14:02 by rgramati          #+#    #+#             //
+//   Updated: 2024/09/05 21:13:35 by rgramati         ###   ########.fr       //
+//                                                                            //
+// ************************************************************************** //
 
 #include <stdarg.h>
 
@@ -17,7 +17,8 @@
 #include <mrt/parser.h>
 #include <mrt/engine.h>
 
-static t_error	mrt_parse_obj_value(t_u8 *ptr, char *fmt, char *str, char **remain)
+static t_error
+	mrt_parse_obj_value(t_u8 *ptr, char *fmt, char *str, char **remain)
 {
 	t_error	err;
 
@@ -35,7 +36,8 @@ static t_error	mrt_parse_obj_value(t_u8 *ptr, char *fmt, char *str, char **remai
 	return (err);
 }
 
-static t_error	mrt_parse_obj_format(t_u8 *ptr, char *fmt, char *str, char **remain)
+static t_error
+	mrt_parse_obj_format(t_u8 *ptr, char *fmt, char *str, char **remain)
 {
 	t_s32	off_err;
 	t_u32	offset;
@@ -45,7 +47,7 @@ static t_error	mrt_parse_obj_format(t_u8 *ptr, char *fmt, char *str, char **rema
 		return (MRT_FAIL);
 	err = MRT_SUCCESS;
 	while (*fmt && fmt[1] && err == MRT_SUCCESS)
-	{	
+	{
 		offset = mrt_strtoi(fmt, &fmt, &off_err);
 		if (off_err)
 			return (MRT_FAIL);
@@ -59,7 +61,8 @@ static t_error	mrt_parse_obj_format(t_u8 *ptr, char *fmt, char *str, char **rema
 	return (err);
 }
 
-static t_error	mrt_parse_obj_type(t_objtype *type, char *str, char **remain)
+static t_error
+	mrt_parse_obj_type(t_objtype *type, char *str, char **remain)
 {
 	const char	*ids[7] = {"A", "C", "L", "sp", "pl", "cy", NULL};
 	t_u32		index;
@@ -75,35 +78,38 @@ static t_error	mrt_parse_obj_type(t_objtype *type, char *str, char **remain)
 			break ;
 		++index;
 	}
-	if (index == 6)
+	if (index == 7)
 		return (MRT_FAIL);
 	*remain = str + 1 + (index > 3);
 	*type = (t_objtype)index;
 	return (MRT_SUCCESS);
 }
 
-t_error	mrt_parse_obj(t_object *ptr, char *str, char **remain)
+t_error
+	mrt_parse_obj(t_scene *scene, char *str, char **remain)
 {
+	t_object	*ptr;
+	t_objtype	type;
+	t_error		err;
 	static char	config[3];
 	static char	*formats[7] = {" ", \
-		MRT_FORMAT_AMBIENT, \
-		MRT_FORMAT_CAMERA, \
-		MRT_FORMAT_LIGHT, \
-		MRT_FORMAT_SPHERE, \
-		MRT_FORMAT_PLANE, \
-		MRT_FORMAT_CYLINDER};
+		MRT_FORMAT_AMBIENT, MRT_FORMAT_CAMERA, \
+		MRT_FORMAT_LIGHT, MRT_FORMAT_SPHERE, \
+		MRT_FORMAT_PLANE, MRT_FORMAT_CYLINDER};	
 
-	if (mrt_parse_obj_type(&ptr->type, str, &str))
-		return (MRT_FAIL);
-	if (ptr->type < MRT_OBJ_SPHERE)
+	if (mrt_parse_obj_type(&type, str, &str))
+		return (MRT_ERR_FMT_TYPE);
+	if (type < MRT_OBJ_SPHERE && config[type])
+		return (MRT_ERR_FMT_CONFIG);
+	else if (type < MRT_OBJ_SPHERE && !config[type])
 	{
-		if (config[ptr->type - 1])
-			return (MRT_FAIL);
-		config[ptr->type - 1] = 1;
+		config[type - 1] = 1;
+		ptr = &scene->config[type];
 	}
-	if (mrt_parse_obj_format((t_u8 *)ptr, formats[ptr->type], str, &str))
-		return (MRT_FAIL);
+	else
+		ptr = mrt_obj_alloc(scene->objects, MRT_TRUE);
+	ptr->type = type;
+	err = mrt_parse_obj_format((t_u8 *)ptr, formats[type], str, &str);
 	*remain = str;
-	return (MRT_SUCCESS);
+	return (err);
 }
-

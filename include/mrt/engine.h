@@ -16,10 +16,11 @@
 # include <mrtlib.h>
 # include <mrt/parser.h>
 
-# define MRT_H	768
-# define MRT_W	1367
+# define MRT_H		900
+# define MRT_W		1600
 
-# define MRT_PI	3.141592
+# define MRT_PI		3.141592
+# define MRT_EPS	1e-5
 
 typedef struct s_mlx
 {
@@ -70,7 +71,13 @@ typedef struct s_mrt_material
 // OBJECT STRUCTS
 
 # define MRT_OBJ_CAMERA_FOV			0
+
+# define MRT_OBJ_LIGHT_BRIGHTNESS	0
+
+# define MRT_OBJ_AMBIENT_BRIGHTNESS	0
+
 # define MRT_OBJ_SPHERE_DIAMETER	0
+
 # define MRT_OBJ_CYLINDER_DIAMETER	0
 # define MRT_OBJ_CYLINDER_HEIGHT	1
 
@@ -121,6 +128,7 @@ typedef struct s_mrt_hit
 	t_mrt_color	color;
 	t_bool		hit;
 	t_f32		dist;
+	t_object	*obj;
 }	t_hit;
 
 typedef struct s_mrt_ray

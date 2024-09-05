@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "mrt/parser.h"
 #include <math.h>
 
 #include <mlx.h>
@@ -18,8 +19,6 @@
 #include <mrtlib.h>
 #include <mrt/error.h>
 #include <mrt/engine.h>
-
-#define MRT_CAMERA_FOV	0
 
 t_f32	mrt_vec_dot(t_mrt_vec v1, t_mrt_vec v2)
 {
@@ -45,6 +44,14 @@ void	mrt_vec_norm(t_mrt_vec *v)
 	*v = ret;
 }
 
+t_mrt_vec	mrt_vec_cross(t_mrt_vec v1, t_mrt_vec v2)
+{
+	return ((t_mrt_vec){.x = v1.y * v2.z - v2.y * v1.z,
+						.y = v1.z * v2.x - v1.x * v2.z,
+						.z = v1.x * v2.y - v2.x * v1.y,
+						.w = 0});
+}
+
 void	mrt_vec_sub(t_mrt_vec *v1, t_mrt_vec v2)
 {
 	v1->x -= v2.x;
@@ -52,10 +59,24 @@ void	mrt_vec_sub(t_mrt_vec *v1, t_mrt_vec v2)
 	v1->z -= v2.z;
 }
 
+void	mrt_vec_add(t_mrt_vec *v1, t_mrt_vec v2)
+{
+	v1->x += v2.x;
+	v1->y += v2.y;
+	v1->z += v2.z;
+}
+
+void	mrt_vec_mult(t_mrt_vec *v1, t_f32 f)
+{
+	v1->x *= f;
+	v1->y *= f;
+	v1->z *= f;
+}
+
 static void	mrt_ray_init(t_scene *scene, t_ray *ray, t_u32 x, t_u32 y)
 {
 	const t_object	*cam = &scene->config[MRT_OBJ_CAMERA];
-	const t_u32		*fov_addr = (t_u32 *)&cam->data[MRT_CAMERA_FOV];
+	const t_u32		*fov_addr = (t_u32 *)&cam->data[MRT_OBJ_CAMERA_FOV];
 	const double	ratio = tan(*fov_addr * 0.5 * MRT_PI / 180);
 	const double	trig[4] = {cos(cam->norm.x), cos(cam->norm.y), sin(cam->norm.x), sin(cam->norm.y)};
 	t_mrt_vec		uv;
@@ -67,8 +88,11 @@ static void	mrt_ray_init(t_scene *scene, t_ray *ray, t_u32 x, t_u32 y)
 	ray->direction = (t_mrt_vec){
 		.x = uv.x * trig[1] + uv.y * trig[2] * trig[3] - uv.z * trig[0] * trig[3],
 		.y = uv.y * trig[0] + uv.z * trig[2],
-		.z = uv.x * trig[3] - uv.y * trig[2] * trig[1] + uv.z * trig[0] * trig[1]};
+		.z = uv.x * trig[3] - uv.y * trig[2] * trig[1] + uv.z * trig[0] * trig[1],
+		.w = 1};
 	ray->origin = cam->pos;
+	ray->hit.dist = INFINITY;
+	ray->hit.color = (t_mrt_color){.a = 255};
 }
 
 # define PARAM_A		0
@@ -85,10 +109,70 @@ t_f32	mrt_fabs(t_f32 f)
 	return (f);
 }
 
+t_u32	mrt_min(t_u32 a, t_u32 b)
+{
+	if (a < b)
+		return (a);
+	return (b);
+}
+
+t_u32	mrt_max(t_u32 a, t_u32 b)
+{
+	if (a >= b)
+		return (a);
+	return (b);
+}
+
+t_u32	mrt_clamp(t_u32 f, t_u32 cmin, t_u32 cmax)
+{
+	return (mrt_min(mrt_max(f, cmin), cmax));
+}
+
+void	mrt_solve_poly(t_f32 *params, t_f32 *res)
+{
+	t_f32	dist;
+
+	dist = 0;
+	params[PARAM_DELTA] = powf(params[PARAM_B], 2) - \
+		(4 * params[PARAM_A] * params[PARAM_C]);
+	if (params[PARAM_DELTA] < 0 || mrt_fabs(params[PARAM_B]) < MRT_EPS)
+		return ;
+	params[PARAM_DELTA_R] = sqrtf(params[PARAM_DELTA]);
+	params[PARAM_2_A] = 2. * params[PARAM_A];
+	if (mrt_fabs(params[PARAM_DELTA] < MRT_EPS))
+		dist = -params[PARAM_B] / params[PARAM_2_A];
+	else
+	{
+		dist = ((-params[PARAM_B] - \
+			params[PARAM_DELTA_R]) / params[PARAM_2_A]);
+		if (dist < 0)
+			dist = ((-params[PARAM_B] + \
+				params[PARAM_DELTA_R]) / params[PARAM_2_A]);
+		if (dist < 0)
+			return ;
+	}
+	*res = dist;
+}
+
+static void	mrt_ray_update(t_ray *ray, t_object *obj, t_f32 dist)
+{
+	t_mrt_vec	path;
+
+	path = ray->direction;
+	mrt_vec_mult(&path, dist);
+	ray->hit = (t_hit){
+		.hit = MRT_TRUE,
+		.dist = dist,
+		.color = obj->mat.obj,
+		.point = ray->origin,
+		.obj = obj};
+	mrt_vec_add(&ray->hit.point, path);
+}
+
 void	mrt_sphere_inter(t_ray *ray, t_object *obj)
 {
 	t_mrt_vec	c_to_r;
-	double		params[6] = {0};
+	t_f32		params[6] = {0};
 	t_f32		dist;
 
 	c_to_r = ray->origin;
@@ -96,80 +180,146 @@ void	mrt_sphere_inter(t_ray *ray, t_object *obj)
 	params[PARAM_A] = mrt_vec_dot(ray->direction, ray->direction);
 	params[PARAM_B] = 2. * mrt_vec_dot(c_to_r, ray->direction);
 	params[PARAM_C] = mrt_vec_dot(c_to_r, c_to_r) - powf(obj->data[MRT_OBJ_SPHERE_DIAMETER] / 2., 2);
-	params[PARAM_DELTA] = powf(params[PARAM_B], 2) - (4 * params[PARAM_A] * params[PARAM_C]);
-	if (params[PARAM_DELTA] < 0 || mrt_fabs(params[PARAM_B]) < 1e-3)
-		return ;
-	params[PARAM_DELTA_R] = sqrtf(params[PARAM_DELTA]);
-	params[PARAM_2_A] = 2. * params[PARAM_A];
-	if (mrt_fabs(params[PARAM_DELTA] < 1e-3))
-		dist = -params[PARAM_B] / params[PARAM_2_A];
-	else
-	{
-		dist = ((-params[PARAM_B] - params[PARAM_DELTA_R]) / params[PARAM_2_A]);
-		if (dist < 0)
-			dist = ((-params[PARAM_B] + params[PARAM_DELTA_R]) / params[PARAM_2_A]);
-		if (dist < 0)
-			return ;
-	}
+	dist = 0;
+	mrt_solve_poly((t_f32 *)params, &dist);
 	if (dist > 0 && dist < ray->hit.dist)
+		mrt_ray_update(ray, obj, dist);
+}
+
+void	mrt_plane_inter(t_ray *ray, t_object *obj)
+{
+	const t_mrt_vec	norm = obj->norm;
+	t_mrt_vec		from;
+	t_f32			d;
+	t_f32			t;
+
+	d = mrt_vec_dot(norm, ray->direction);
+	if (mrt_fabs(d) > MRT_EPS)
 	{
-		ray->hit.color = obj->mat.obj;
-		ray->hit.hit = MRT_TRUE;
-		ray->hit.dist = dist;
+		from = obj->pos;
+		mrt_vec_sub(&from, ray->origin);
+		t = mrt_vec_dot(from, norm) / d;
+		if (mrt_fabs(t) > MRT_EPS && t >= 0)
+		{
+			if (t >= ray->hit.dist)
+				return ;
+			mrt_ray_update(ray, obj, t);
+		}
 	}
 }
 
-t_mrt_color	mrt_scene_get_color(t_scene *scene, t_u32 x, t_u32 y)
+t_mrt_color	mrt_color_mult(t_mrt_color c, t_f32 f)
 {
-	t_ray		ray;
+	return ((t_mrt_color){
+		.a = 255,
+		.r = ((c.r / 255.) * f) * 255,
+		.g = ((c.g / 255.) * f) * 255,
+		.b = ((c.b / 255.) * f) * 255});
+}
+
+static void	mrt_ray_cast(t_scene *scene, t_ray *ray)
+{
 	t_object	*obj;
+	t_u32		i = 0;
 
-	mrt_bzero(&ray, sizeof(t_ray));
-	mrt_ray_init(scene, &ray, x, y);
-	ray.hit.dist = INFINITY;
-
-	t_u32	i = 0;
 	while (i < scene->nobj)
 	{
 		obj = &scene->objects->objs[i];
 		if (obj->type == MRT_OBJ_SPHERE)
-			mrt_sphere_inter(&ray, obj);
+			mrt_sphere_inter(ray, obj);
+		if (obj->type == MRT_OBJ_PLANE)
+			mrt_plane_inter(ray, obj);
 		i++;
 	}
-	if (ray.hit.hit)
-		return (ray.hit.color);
-	return (scene->config[MRT_OBJ_AMBIENT].mat.obj);
 }
 
-static void	mrt_scene_transform(t_scene *scene)
+static t_mrt_color	mrt_ray_color_ambient(t_scene *scene)
 {
-	t_f32		speed;
-	t_mrt_vec	campos;
-	t_mrt_vec	angles;
+	t_object	*ambient;
+	t_mrt_color	ambi;
 
-	speed = 0.2;
-	campos = scene->config[MRT_OBJ_CAMERA].pos;
-	angles = scene->config[MRT_OBJ_CAMERA].norm;
-	if (scene->map[SDL_SCANCODE_LSHIFT])
-		campos.y -= speed;
-	if (scene->map[SDL_SCANCODE_SPACE])
-		campos.y += speed;
-	if (scene->map[SDL_SCANCODE_W])
-		campos.x += speed;
-	if (scene->map[SDL_SCANCODE_A])
-		campos.z -= speed;
-	if (scene->map[SDL_SCANCODE_S])
-		campos.x -= speed;
-	if (scene->map[SDL_SCANCODE_D])
-		campos.z += speed;
-	if (scene->map[SDL_SCANCODE_Q])
-		angles.y += 0.02;
-	if (scene->map[SDL_SCANCODE_E])
-		angles.y -= 0.02;
-	if (scene->map[SDL_SCANCODE_P])
-		printf("Camera {\n  pos: %f %f %f\n  dir: %f %f %f\n}\n", campos.x, campos.y, campos.z, angles.x, angles.y, angles.z);
-	scene->config[MRT_OBJ_CAMERA].pos = campos;
-	scene->config[MRT_OBJ_CAMERA].norm = angles;
+	ambient = &scene->config[MRT_OBJ_AMBIENT];
+	ambi = mrt_color_mult(ambient->mat.obj, ambient->mat.obj_r);
+	return (ambi);
+}
+
+static t_mrt_color	mrt_ray_color_diffuse(t_scene *scene, t_ray *ray)
+{
+	const t_object	*light = &scene->config[MRT_OBJ_LIGHT];
+	t_mrt_vec	lightpath;
+	t_mrt_vec	norm;
+	t_f32		dratio;
+
+	light = &scene->config[MRT_OBJ_LIGHT];
+	lightpath = light->pos;
+	mrt_vec_sub(&lightpath, ray->hit.point);
+	if (ray->hit.obj->type == MRT_OBJ_SPHERE)
+	{
+		norm = ray->hit.point;
+		mrt_vec_sub(&norm, ray->hit.obj->pos);
+		if (fabs(mrt_vec_dot(norm, ray->direction)) < 1.e-4)
+			mrt_vec_mult(&norm, -1.);
+	}
+	if (ray->hit.obj->type == MRT_OBJ_PLANE)
+		norm = ray->hit.obj->norm;
+	mrt_vec_norm(&norm);
+	mrt_vec_norm(&lightpath);
+	dratio = fmaxf(mrt_vec_dot(lightpath, norm), 0.);
+	dratio = fminf(light->mat.obj_r * dratio, 1.);
+	return (mrt_color_mult(ray->hit.obj->mat.obj, dratio));
+}
+
+static void	mrt_ray_color(t_scene *scene, t_ray *ray)
+{
+	t_mrt_color	ambi;
+	t_mrt_color	diff;
+
+	ambi = mrt_ray_color_ambient(scene);
+	diff = mrt_ray_color_diffuse(scene, ray);
+	ray->hit.color = (t_mrt_color){
+		.a = 255,
+		.r = mrt_clamp(ambi.r + diff.r, 0, 255),
+		.g = mrt_clamp(ambi.g + diff.g, 0, 255),
+		.b = mrt_clamp(ambi.b + diff.b, 0, 255)};
+}
+
+static t_mrt_color	mrt_scene_get_color(t_scene *scene, t_u32 x, t_u32 y)
+{
+	static t_ray	ray[MRT_H * MRT_W] = {0};
+	t_ray			*this;
+
+	mrt_bzero(&ray, sizeof(t_ray));
+	this = &ray[y * MRT_W + x];
+	if (this->direction.w == 0.)
+		mrt_ray_init(scene, this, x, y);
+	mrt_ray_cast(scene, this);
+	if (this->hit.obj)
+		mrt_ray_color(scene, this);
+	return (this->hit.color);
+}
+
+#define TIMER_GET 0
+#define TIMER_SET 1
+
+#include <sys/time.h>
+static void	mrt_timer(t_u32 action)
+{
+	static struct timeval	tv = {0};
+	struct timeval			ntv;
+
+	if (!tv.tv_sec)
+		gettimeofday(&tv, NULL);
+	gettimeofday(&ntv, NULL);
+	if (action == TIMER_SET)
+		tv = ntv;
+	else if (action == TIMER_GET)
+	{
+		if (ntv.tv_usec > tv.tv_usec)
+			printf("\033c\rElapsed time: %zu.", ntv.tv_sec - tv.tv_sec);
+		for (int i = 0; i < (int)(6 - log10f(ntv.tv_usec - tv.tv_usec)); i++)
+			printf("0");
+		printf("%zu\n", ntv.tv_usec - tv.tv_usec);
+	}
 }
 
 int	mrt_scene_render(void *scene_ptr)
@@ -182,6 +332,7 @@ int	mrt_scene_render(void *scene_ptr)
 	color = (t_mrt_color){0};
 	scene = (t_scene *)scene_ptr;
 	x = 0;
+	mrt_timer(TIMER_SET);
 	while (x < MRT_W)
 	{
 		y = 0;
@@ -193,6 +344,6 @@ int	mrt_scene_render(void *scene_ptr)
 		}
 		x++;
 	}
-	mrt_scene_transform(scene);
+	mrt_timer(TIMER_GET);
 	return (MRT_SUCCESS);
 }

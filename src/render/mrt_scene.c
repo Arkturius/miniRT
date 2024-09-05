@@ -34,9 +34,9 @@ static t_u32	mrt_scene_obj_count(t_obj_chunk *chunk)
 
 static t_error	mrt_scene_obj_init(t_scene *scene, t_file *file)
 {
-	t_object	*obj;
-	char		*stream;
-
+	t_error	err;
+	char	*stream;
+	
 	scene->objects = mrt_obj_chunk_init();
 	scene->nobj = 0;
 	if (!scene->objects)
@@ -44,13 +44,9 @@ static t_error	mrt_scene_obj_init(t_scene *scene, t_file *file)
 	stream = file->data;
 	while (*stream)
 	{
-		obj = mrt_obj_alloc(scene->objects, MRT_TRUE);
-		if (mrt_parse_obj(obj, stream, &stream))
-			return (MRT_FAIL);
-		if (obj->type < MRT_OBJ_SPHERE)
-			mrt_memcpy(&scene->config[obj->type], obj, sizeof(t_object));
-		if (obj->type < MRT_OBJ_SPHERE)
-			mrt_obj_free(scene->objects);	
+		err = mrt_parse_obj(scene, stream, &stream);
+		if (err != MRT_SUCCESS)
+			return (err);
 		while (*stream && mrt_isspace((unsigned char)*stream))
 			++stream;
 	}
@@ -86,7 +82,5 @@ t_error	mrt_scene_init(t_file *file, t_scene *scene)
 	mrt_bzero(scene->map, 65536);
 	mrt_scene_cam_init(scene);
 	// mrt_scene_aabb_init(scene);
-	// mrt_io_save("save/objects.mrt", "@> ", scene->objects, 32, sizeof(t_object));
-	// mrt_io_save("save/camera.mrt", "@ ", &scene->config[MRT_OBJ_CAMERA].data, 1, sizeof(t_objD));
 	return (MRT_SUCCESS);
 }
