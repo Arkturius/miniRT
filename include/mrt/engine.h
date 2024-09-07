@@ -29,7 +29,7 @@ typedef struct s_mlx
 	void	*img;
 }	t_mlx;
 
-typedef enum e_mrt_error	t_error;
+typedef struct e_mrt_error	t_error;
 
 typedef struct s_mrt_scene	t_scene;
 
@@ -39,13 +39,15 @@ t_error	mrt_mlx_init(t_mlx *mlx);
 
 void	mrt_mlx_clean(t_mlx mlx);
 
-t_error	mrt_mlx_hook_setup(t_scene *scene);
+t_u32	mrt_mlx_hook_setup(t_scene *scene);
 
 /* MLX HOOKS **************************************************************** */
 
 t_s32	mrt_mlx_hook_keyup(t_s32 key, void *mlx);
 
 t_s32	mrt_mlx_hook_keydown(t_s32 key, void *mlx);
+
+t_s32	mrt_mlx_hook_mousedown(t_s32 key, void *mlx);
 
 t_s32	mrt_mlx_hook_win(t_s32 key, void *mlx);
 
@@ -143,5 +145,26 @@ t_error		mrt_scene_init(t_file *file, t_scene *scene);
 void		mrt_scene_clean(t_scene *scene);
 
 int			mrt_scene_render(void *scene_ptr);
+
+# define PARAM_A		0
+# define PARAM_B		1
+# define PARAM_C		2
+# define PARAM_DELTA	3
+# define PARAM_DELTA_R	4
+# define PARAM_2_A		5
+
+void		mrt_ray_init(t_scene *scene, t_ray *ray, t_u32 x, t_u32 y);
+
+void		mrt_ray_cast(t_scene *scene, t_ray *ray);
+
+void		mrt_ray_color(t_scene *scene, t_ray *ray);
+
+void		mrt_sphere_inter(t_ray *ray, t_object *obj);
+
+void		mrt_plane_inter(t_ray *ray, t_object *obj);
+
+t_mrt_color	mrt_ray_color_ambient(t_scene *scene);
+
+t_mrt_color	mrt_ray_color_diffuse(t_scene *scene, t_ray *ray);
 
 #endif

@@ -36,22 +36,26 @@ static t_error	mrt_scene_obj_init(t_scene *scene, t_file *file)
 {
 	t_error	err;
 	char	*stream;
-	
+
+	err = (t_error){MRT_SUCCESS, (void *)__func__};
 	scene->objects = mrt_obj_chunk_init();
 	scene->nobj = 0;
-	if (!scene->objects)
-		return (MRT_ERR_ALLOC);
-	stream = file->data;
-	while (*stream)
+	if (scene->objects)
 	{
-		err = mrt_parse_obj(scene, stream, &stream);
-		if (err != MRT_SUCCESS)
-			return (err);
-		while (*stream && mrt_isspace((unsigned char)*stream))
-			++stream;
+		stream = file->data;
+		while (*stream && err.type == MRT_SUCCESS)
+		{
+			err = mrt_parse_obj(scene, stream, &stream);
+			if (err.type != MRT_SUCCESS)
+				return (err);
+			while (*stream && mrt_isspace((unsigned char)*stream))
+				++stream;
+		}
+		scene->nobj = mrt_scene_obj_count(scene->objects);
 	}
-	scene->nobj = mrt_scene_obj_count(scene->objects);
-	return (MRT_SUCCESS);
+	else
+		err.type = MRT_ERR_ALLOC;
+	return (err);
 }
 
 static void	mrt_scene_cam_init(t_scene *scene)
@@ -74,13 +78,19 @@ void	mrt_scene_clean(t_scene *scene)
 
 t_error	mrt_scene_init(t_file *file, t_scene *scene)
 {
-	if (mrt_scene_obj_init(scene, file))
-		return (MRT_FAIL);
-	scene->map = malloc(65536 * sizeof(char));
-	if (!scene->map)
-		return (mrt_error_alloc(__func__));
-	mrt_bzero(scene->map, 65536);
-	mrt_scene_cam_init(scene);
-	// mrt_scene_aabb_init(scene);
-	return (MRT_SUCCESS);
+	t_error	err;
+
+	err = mrt_scene_obj_init(scene, file);
+	if (err.type == MRT_SUCCESS)
+	{
+		scene->map = malloc(65536 * sizeof(char));
+		if (!scene->map)
+		{
+			err.type = MRT_ERR_ALLOC;
+			return (err);
+		}
+		mrt_bzero(scene->map, 65536);
+		mrt_scene_cam_init(scene);
+	}
+	return (err);
 }

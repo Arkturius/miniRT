@@ -65,31 +65,31 @@ typedef struct s_mrt_file
 t_error																		\
 mrt_parse_file(const char *name, t_file *file);
 
-t_error																		\
+t_errtype																	\
 mrt_parse_int(int *res, char *str, char **remain);
 
-t_error																		\
+t_errtype																	\
 mrt_parse_float(float *res, char *str, char **remain);
 
-t_error																		\
+t_errtype																	\
 mrt_parse_vec(t_mrt_vec *res, char *str, char **remain);
 
-t_error																		\
+t_errtype																	\
 mrt_parse_color(t_mrt_color *res, char *str, char **remain);
 
-# define MRT_FORMAT				"ifcv"
+# define MRT_FORMAT			"ifcv"
 
-# define MRT_FORMAT_AMBIENT		"56 !f 48 !c"
+# define MRT_FMT_AMBIENT	"56 !f 48 !c"
 
-# define MRT_FORMAT_CAMERA		"16 !v 32 !v 8 !i"
+# define MRT_FMT_CAMERA		"16 !v 32 !v 8 !i"
 
-# define MRT_FORMAT_LIGHT		"16 !v 56 !f 48 !c"
+# define MRT_FMT_LIGHT		"16 !v 56 !f 48 !c"
 
-# define MRT_FORMAT_SPHERE		"16 !v 8 !f 48 !c"
+# define MRT_FMT_SPHERE		"16 !v 8 !f 48 !c"
 
-# define MRT_FORMAT_PLANE		"16 !v 32 !v 48 !c"
+# define MRT_FMT_PLANE		"16 !v 32 !v 48 !c"
 
-# define MRT_FORMAT_CYLINDER	"16 !v 32 !v 8 !f 12 !f 48 !c"
+# define MRT_FMT_CYLINDER	"16 !v 32 !v 8 !f 12 !f 48 !c"
 
 typedef struct s_mrt_object	t_object;
 

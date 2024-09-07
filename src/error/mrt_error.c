@@ -15,17 +15,13 @@
 #include <mrtlib.h>
 #include <mrt/error.h>
 
-#define MRT_ERROR	"\033[31;1m/!\\ [Error] > \033[39;21;3m%s\n"
-
-t_error	mrt_error_alloc(const char *func)
+t_error	mrt_error_print(t_error err)
 {
-	printf(MRT_ERROR, func);
-	return (MRT_ERR_ALLOC);
-}
+	static char	*msgs[9] = {MRT_MSG_ALLOC, MRT_MSG_MLX, MRT_MSG_FILE_NONE,
+		MRT_MSG_FILE_EXTE, MRT_MSG_FILE_PERM, MRT_MSG_FILE_PROC,
+		MRT_MSG_FMT_TYPE, MRT_MSG_FMT_CONFIG, MRT_MSG_FMT_DATA};
 
-t_error	mrt_error_print(t_error type, void *data)
-{
-	if (type != MRT_SUCCESS)
-		printf(MRT_ERROR, (char *)data);
-	return (type);
+	if (err.type != MRT_SUCCESS)
+		printf("[Error] %s "MRT_MSG_DATA_FMT, msgs[err.type], (char *)err.func);
+	return (err);
 }

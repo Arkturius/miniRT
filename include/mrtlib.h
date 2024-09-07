@@ -52,6 +52,8 @@ typedef struct s_list
 	struct s_list	*next;
 }	t_list;
 
+#define PRINT_VEC(X) printf("%s: [ %f, %f, %f ]\n", #X, X.x, X.y, X.z)
+
 typedef struct s_mrt_vec
 {
 	t_f32	x;
@@ -114,5 +116,29 @@ t_u32	mrt_io_close_file(t_s32 fd);
 t_u32	mrt_io_save(const char *filename, const char *fmt, ...);
 
 t_u32	mrt_io_load(const char *filename, const char *fmt, ...);
+
+
+t_f32	mrt_fabs(t_f32 f);
+
+t_u32	mrt_min(t_u32 a, t_u32 b);
+
+t_u32	mrt_max(t_u32 a, t_u32 b);
+
+t_u32	mrt_clamp(t_u32 f, t_u32 cmin, t_u32 cmax);
+
+
+void	mrt_vec_add(t_mrt_vec v1, t_mrt_vec v2, t_mrt_vec *n);
+
+void	mrt_vec_sub(t_mrt_vec v1, t_mrt_vec v2, t_mrt_vec *n);
+
+void	mrt_vec_mult(t_mrt_vec v1, t_f32 f, t_mrt_vec *n);
+
+t_f32	mrt_vec_len(t_mrt_vec v);
+
+void	mrt_vec_norm(t_mrt_vec v, t_mrt_vec *n);
+
+t_f32	mrt_vec_dot(t_mrt_vec v1, t_mrt_vec v2);
+
+void	mrt_vec_cross(t_mrt_vec v1, t_mrt_vec v2, t_mrt_vec *n);
 
 #endif // MRTLIB_H

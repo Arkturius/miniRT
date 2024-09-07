@@ -15,7 +15,7 @@
 #include <mrtlib.h>
 #include <mrt/error.h>
 
-t_error	mrt_io_save_array(t_s32 fd, t_io_array arr, t_bool sized)
+t_u32	mrt_io_save_array(t_s32 fd, t_io_array arr, t_bool sized)
 {
 	t_u64	bytes[2];
 	t_u64	chunk;
@@ -36,7 +36,7 @@ t_error	mrt_io_save_array(t_s32 fd, t_io_array arr, t_bool sized)
 	return (MRT_SUCCESS);
 }
 
-t_error	mrt_io_save_stream(t_s32 fd, const char *fmt, va_list stream)
+t_u32	mrt_io_save_stream(t_s32 fd, const char *fmt, va_list stream)
 {
 	char		*str;
 	t_io_array	arr;
@@ -82,21 +82,21 @@ t_error	mrt_io_save_stream(t_s32 fd, const char *fmt, va_list stream)
 * 
 * @return	MRT error code based on how things went.
 */
-t_error	mrt_io_save(const char *filename, const char *fmt, ...)
+t_u32	mrt_io_save(const char *filename, const char *fmt, ...)
 {
 	va_list	data;
 	t_s32	save;
 	t_error	err;
 
-	err = mrt_io_open_file(filename, &save, MRT_OPEN_WRITE);
-	if (err != MRT_SUCCESS)
-		return (err);
+	err.type = mrt_io_open_file(filename, &save, MRT_OPEN_WRITE);
+	if (err.type != MRT_SUCCESS)
+		return (err.type);
 	va_start(data, fmt);
-	err = mrt_io_save_stream(save, fmt, data);
-	if (err != MRT_SUCCESS)
+	err.type = mrt_io_save_stream(save, fmt, data);
+	if (err.type != MRT_SUCCESS)
 	{
 		va_end(data);
-		return (err);
+		return (err.type);
 	}
 	va_end(data);
 	return (MRT_SUCCESS);

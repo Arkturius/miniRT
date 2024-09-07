@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "mrtlib.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -17,7 +18,7 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 
-static t_error	mrt_parse_line_join(char **dst, t_line *file, t_u32 size)
+static t_errtype	mrt_parse_line_join(char **dst, t_line *file, t_u32 size)
 {
 	t_line	*tmp;
 	char	*join;
@@ -30,7 +31,7 @@ static t_error	mrt_parse_line_join(char **dst, t_line *file, t_u32 size)
 	size = size * (MRT_LINE_LEN - 1) + mrt_strlen(tmp->str) + 1;
 	join = malloc(size);
 	if (!join)
-		return (mrt_error_alloc(__func__));
+		return (MRT_ERR_ALLOC);
 	mrt_bzero(join, size);
 	size = 0;
 	tmp = file;
@@ -44,7 +45,7 @@ static t_error	mrt_parse_line_join(char **dst, t_line *file, t_u32 size)
 	return (MRT_SUCCESS);
 }
 
-static t_error	mrt_parse_line_list(t_line **list, t_file *parser)
+static t_errtype	mrt_parse_line_list(t_line **list, t_file *parser)
 {
 	char	buffer[MRT_LINE_LEN - 1];
 	t_line	*line;
@@ -59,7 +60,7 @@ static t_error	mrt_parse_line_list(t_line **list, t_file *parser)
 			break ;
 		line = mrt_line_new((char *)&buffer, MRT_TRUE, bytes);
 		if (!line)
-			return (mrt_error_alloc(__func__));
+			return (MRT_ERR_ALLOC);
 		mrt_line_push(list, line);
 	}
 	if (bytes < 0)
@@ -67,7 +68,7 @@ static t_error	mrt_parse_line_list(t_line **list, t_file *parser)
 	return (MRT_SUCCESS);
 }
 
-static t_error	mrt_parse_file_lines(t_file *parser)
+static t_errtype	mrt_parse_file_lines(t_file *parser)
 {
 	char		*data;
 	t_line		*file;
@@ -94,7 +95,7 @@ static t_error	mrt_parse_file_lines(t_file *parser)
  * 			2nd parameter to check extension
  * 			support different type of files for miniRT
  */
-static t_error	mrt_parse_file_extension(const char *filename)
+static t_errtype	mrt_parse_file_extension(const char *filename)
 {
 	char	*point;
 
@@ -114,22 +115,23 @@ t_error	mrt_parse_file(const char *filename, t_file *parser)
 {
 	t_error	err;
 
-	err = MRT_ERR_FILE_NONE;
+	err = (t_error){MRT_ERR_FILE_NONE, (void *)__func__};
 	while (1)
 	{
 		if (!parser || !filename)
 			break ;
 		parser->filename = filename;
-		err = MRT_ERR_FILE_EXTE;
+		err.type = MRT_ERR_FILE_EXTE;
 		if (mrt_parse_file_extension(filename))
 			break ;
-		err = MRT_ERR_FILE_PERM;
+		err.type = MRT_ERR_FILE_PERM;
 		if (mrt_io_open_file(filename, &parser->fd, MRT_OPEN_READ))
 			break ;
-		err = MRT_ERR_FILE_PROC;
+		err.type = MRT_ERR_FILE_PROC;
 		if (mrt_parse_file_lines(parser))
 			break ;
-		return (MRT_SUCCESS);
+		err.type = MRT_SUCCESS;
+		return (err);
 	}
 	if (parser->fd != -1)
 		close(parser->fd);

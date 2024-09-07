@@ -14,7 +14,7 @@
 #include <mrt/error.h>
 #include <mrt/engine.h>
 
-t_error	mrt_scene_aabb_init(t_scene *scene)
+t_errtype	mrt_scene_aabb_init(t_scene *scene)
 {
 	(void) scene;
 	return (MRT_SUCCESS);

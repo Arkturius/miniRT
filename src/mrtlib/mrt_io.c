@@ -17,7 +17,7 @@
 
 #define MRT_FILL_BYTE 42
 
-t_error	mrt_io_open_file(const char *filename, t_s32 *fd, t_open_mode mode)
+t_u32	mrt_io_open_file(const char *filename, t_s32 *fd, t_open_mode mode)
 {
 	*fd = -1;
 	if (!filename || !*filename)
@@ -28,7 +28,7 @@ t_error	mrt_io_open_file(const char *filename, t_s32 *fd, t_open_mode mode)
 	return (MRT_SUCCESS);
 }
 
-t_error	mrt_io_close_file(t_s32 fd)
+t_u32	mrt_io_close_file(t_s32 fd)
 {
 	t_s32	err;
 

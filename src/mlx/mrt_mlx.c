@@ -44,19 +44,23 @@ t_error	mrt_mlx_init(t_mlx *mlx)
 		mlx->img = mlx_new_image(mlx->app, MRT_W, MRT_H);
 		if (!mlx->img)
 			break ;
-		return (MRT_SUCCESS);
+		return ((t_error){MRT_SUCCESS, NULL});
 	}
 	mrt_mlx_clean(*mlx);
-	return (mrt_error_print(MRT_ERR_MLX, (void *)err));
+	return ((t_error){MRT_ERR_MLX, (void *)err});
 }
 
 t_u32	mrt_mlx_hook_setup(t_scene *scene)
 {
 	if (!scene)
 		return (MRT_FAIL);
-	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_KEYDOWN, mrt_mlx_hook_keydown, scene);
-	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_KEYUP, mrt_mlx_hook_keyup, scene);
-	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_WINDOW_EVENT, mrt_mlx_hook_win, scene);
-	// mlx_loop_hook(scene->mlx.app, mrt_scene_render, (void *)scene);
+	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_KEYDOWN, \
+		mrt_mlx_hook_keydown, scene);
+	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_KEYUP, \
+		mrt_mlx_hook_keyup, scene);
+	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_MOUSEDOWN, \
+		mrt_mlx_hook_mousedown, scene);
+	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_WINDOW_EVENT, \
+		mrt_mlx_hook_win, scene);
 	return (MRT_SUCCESS);
 }

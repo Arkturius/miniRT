@@ -14,7 +14,7 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 
-t_error	mrt_parse_int(int *res, char *str, char **remain)
+t_errtype	mrt_parse_int(int *res, char *str, char **remain)
 {
 	t_s32	i;
 	t_s32	err;
@@ -27,7 +27,7 @@ t_error	mrt_parse_int(int *res, char *str, char **remain)
 	return (MRT_SUCCESS);
 }
 
-t_error	mrt_parse_float(float *res, char *str, char **remain)
+t_errtype	mrt_parse_float(float *res, char *str, char **remain)
 {
 	t_f32	f;
 	t_s32	err;
@@ -40,7 +40,7 @@ t_error	mrt_parse_float(float *res, char *str, char **remain)
 	return (MRT_SUCCESS);
 }
 
-t_error	mrt_parse_vec(t_mrt_vec *res, char *str, char **remain)
+t_errtype	mrt_parse_vec(t_mrt_vec *res, char *str, char **remain)
 {
 	t_mrt_vec	v;
 
@@ -62,7 +62,7 @@ t_error	mrt_parse_vec(t_mrt_vec *res, char *str, char **remain)
 	return (MRT_FAIL);
 }
 
-t_error	mrt_parse_color(t_mrt_color *res, char *str, char **remain)
+t_errtype	mrt_parse_color(t_mrt_color *res, char *str, char **remain)
 {
 	t_mrt_color	c;
 	int			tmp[3];

@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdint.h>
 #include <unistd.h>
 
 #include <SDL2/SDL_scancode.h>
@@ -28,31 +29,27 @@ static void	mrt_file_clean(t_file *file)
 	free(file->data);
 }
 
-char *mrt_file_select(void);
-
-t_s32	main(__attribute__((unused)) int argc, char **argv)
+int	main(__attribute__((unused)) int argc, char **argv)
 {
-	char		*name = mrt_file_select();
 	t_file		file;
 	t_scene		scene;
 	t_error		err;
 
 	mrt_bzero(&file, sizeof(t_file));
 	mrt_bzero(&scene, sizeof(t_scene));
-	err = mrt_parse_file(name, &file);
-	if (err == MRT_SUCCESS)
+	err = mrt_parse_file(argv[1], &file);
+	if (err.type == MRT_SUCCESS)
 		err = mrt_scene_init(&file, &scene);
 	mrt_file_clean(&file);
-	if (err == MRT_SUCCESS)
+	if (err.type == MRT_SUCCESS)
 		err = mrt_mlx_init(&scene.mlx);
-	// MRT_END_IMPLEMENTATION
-	if (err == MRT_SUCCESS)
+	if (err.type == MRT_SUCCESS)
 	{
 		mrt_mlx_hook_setup(&scene);
 		mrt_scene_render(&scene);
 		mlx_loop(scene.mlx.app);
 	}
 	mrt_scene_clean(&scene);
-	return (err);
+	mrt_error_print(err);
+	return (err.type);
 }
-

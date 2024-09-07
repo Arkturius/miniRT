@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/09/05 20:55:47 by rgramati         ###   ########.fr        #
+#    Updated: 2024/09/07 15:27:32 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,9 @@ SRC				=	main.c						\
 					mrtlib/mrt_mem.c			\
 					mrtlib/mrt_str.c			\
 					mrtlib/mrt_chr.c			\
+					mrtlib/mrt_vec.c			\
+					mrtlib/mrt_vec2.c			\
+					mrtlib/mrt_math.c			\
 					mrtlib/mrt_tox.c			\
 					mrtlib/mrt_list.c			\
 					mrtlib/mrt_io.c				\
@@ -40,6 +43,9 @@ SRC				=	main.c						\
 					objects/mrt_obj_chunk.c		\
 					render/mrt_scene.c			\
 					render/mrt_scene_render.c	\
+					render/mrt_rays.c			\
+					render/mrt_objects.c		\
+					render/mrt_colors.c			\
 					save/mrt_scene_file.c
 
 SRC_DIR			=	src
@@ -55,7 +61,7 @@ MLX_DIR			=	third-party/MacroLibX
 MLX				=	$(MLX_DIR)/libmlx.so
 
 CC				=	gcc
-CFLAGS			= 	-Wall -Wextra -Werror -O3
+CFLAGS			= 	-Wall -Wextra -Werror -Ofast
 
 COPTS			= 	-I $(INCLUDE_DIR) -I $(MLX_DIR)/$(INCLUDE_DIR)s
 LDFLAGS			=	-lSDL2 -lm
@@ -66,7 +72,7 @@ ifeq ($(DEBUG), 1)
 endif
 
 ifeq ($(LAZY), 1)
-	CFLAGS		=	-Wall -Wextra -O3
+	CFLAGS		=	-Wall -Wextra -Ofast
 endif
 
 FILE			=	$(shell ls -lR $(SRC_DIR) | grep -F .c | wc -l)

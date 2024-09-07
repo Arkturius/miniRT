@@ -5,6 +5,18 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/06 17:32:01 by rgramati          #+#    #+#             */
+/*   Updated: 2024/09/06 17:33:11 by rgramati         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mrt_io_load.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/21 19:41:43 by rgramati          #+#    #+#             */
 /*   Updated: 2024/08/21 19:42:20 by rgramati         ###   ########.fr       */
 /*                                                                            */
@@ -16,7 +28,7 @@
 #include <mrtlib.h>
 #include <mrt/error.h>
 
-t_error	mrt_io_load_array(t_s32 fd, t_io_array arr, t_bool sized)
+t_u32	mrt_io_load_array(t_s32 fd, t_io_array arr, t_bool sized)
 {
 	t_u64	bytes[2];
 	t_u64	chunk;
@@ -42,7 +54,7 @@ t_error	mrt_io_load_array(t_s32 fd, t_io_array arr, t_bool sized)
 	return (MRT_SUCCESS);
 }
 
-t_error	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
+t_u32	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
 {
 	char		*str;
 	t_io_array	arr;
@@ -60,9 +72,9 @@ t_error	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
 			sized = MRT_TRUE;
 		else if (*str == ' ')
 		{
-			err = mrt_io_load_array(fd, arr, sized);
-			if (err != MRT_SUCCESS)
-				return (err);
+			err.type = mrt_io_load_array(fd, arr, sized);
+			if (err.type != MRT_SUCCESS)
+				return (err.type);
 			sized = MRT_FALSE;
 		}
 		++str;
@@ -86,21 +98,21 @@ t_error	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
 * 
 * @return	MRT error code based on how things went.
 */
-t_error	mrt_io_load(const char *filename, const char *fmt, ...)
+t_u32	mrt_io_load(const char *filename, const char *fmt, ...)
 {
 	va_list	data;
 	t_s32	save;
 	t_error	err;
 
-	err = mrt_io_open_file(filename, &save, MRT_OPEN_READ);
-	if (err != MRT_SUCCESS)
-		return (err);
+	err.type = mrt_io_open_file(filename, &save, MRT_OPEN_READ);
+	if (err.type != MRT_SUCCESS)
+		return (err.type);
 	va_start(data, fmt);
-	err = mrt_io_load_stream(save, fmt, data);
-	if (err != MRT_SUCCESS)
+	err.type = mrt_io_load_stream(save, fmt, data);
+	if (err.type != MRT_SUCCESS)
 	{
 		va_end(data);
-		return (err);
+		return (err.type);
 	}
 	va_end(data);
 	return (MRT_SUCCESS);
