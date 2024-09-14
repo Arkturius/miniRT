@@ -16,8 +16,8 @@
 
 t_errtype	mrt_parse_int(int *res, char *str, char **remain)
 {
-	t_s32	i;
-	t_s32	err;
+	int32_t	i;
+	int32_t	err;
 
 	i = mrt_strtoi(str, &str, &err);
 	if (err)
@@ -29,8 +29,8 @@ t_errtype	mrt_parse_int(int *res, char *str, char **remain)
 
 t_errtype	mrt_parse_float(float *res, char *str, char **remain)
 {
-	t_f32	f;
-	t_s32	err;
+	float	f;
+	int32_t	err;
 
 	f = mrt_strtof(str, &str, &err);
 	if (err)
@@ -75,9 +75,9 @@ t_errtype	mrt_parse_color(t_mrt_color *res, char *str, char **remain)
 			break ;
 		if (*str++ != ',' || mrt_parse_int(tmp + 2, str, &str))
 			break ;
-		c = (t_mrt_color){.a = 255, .r = (t_u8) *(tmp),
-			.g = (t_u8) *(tmp + 1),
-			.b = (t_u8) *(tmp + 2)};
+		c = (t_mrt_color){.a = 255, .r = (uint8_t) *(tmp),
+			.g = (uint8_t) *(tmp + 1),
+			.b = (uint8_t) *(tmp + 2)};
 		*res = c;
 		while (mrt_isspace(*str))
 			++str;

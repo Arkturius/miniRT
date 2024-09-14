@@ -34,7 +34,7 @@ void	mrt_vec_add(t_mrt_vec v1, t_mrt_vec v2, t_mrt_vec *n)
 	*n = ret;
 }
 
-void	mrt_vec_mult(t_mrt_vec v1, t_f32 f, t_mrt_vec *n)
+void	mrt_vec_mult(t_mrt_vec v1, float f, t_mrt_vec *n)
 {
 	const t_mrt_vec	ret = (t_mrt_vec){
 		.x = v1.x * f,

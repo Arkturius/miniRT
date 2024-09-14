@@ -17,7 +17,7 @@
 
 #define MRT_FILL_BYTE 42
 
-t_u32	mrt_io_open_file(const char *filename, t_s32 *fd, t_open_mode mode)
+uint32_t	mrt_io_open_file(const char *filename, int *fd, t_open_mode mode)
 {
 	*fd = -1;
 	if (!filename || !*filename)
@@ -28,9 +28,9 @@ t_u32	mrt_io_open_file(const char *filename, t_s32 *fd, t_open_mode mode)
 	return (MRT_SUCCESS);
 }
 
-t_u32	mrt_io_close_file(t_s32 fd)
+uint32_t	mrt_io_close_file(int32_t fd)
 {
-	t_s32	err;
+	int32_t	err;
 
 	if (fd <= 2)
 		return (MRT_ERR_FILE_NONE);
@@ -40,9 +40,9 @@ t_u32	mrt_io_close_file(t_s32 fd)
 	return (MRT_SUCCESS);
 }
 
-void	mrt_io_write(t_s32 fd, t_u8 *data, t_u64 size)
+void	mrt_io_write(int32_t fd, uint8_t *data, uint64_t size)
 {
-	t_s32	err;
+	int32_t	err;
 
 	if (!data || !size)
 		return ;
@@ -51,9 +51,9 @@ void	mrt_io_write(t_s32 fd, t_u8 *data, t_u64 size)
 		return ;
 }
 
-void	mrt_io_read(t_s32 fd, t_u8 *data, t_u64 size)
+void	mrt_io_read(int32_t fd, uint8_t *data, uint64_t size)
 {
-	t_s32	err;
+	int32_t	err;
 
 	if (!data || !size)
 		return ;

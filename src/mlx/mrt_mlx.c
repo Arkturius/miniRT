@@ -50,7 +50,7 @@ t_error	mrt_mlx_init(t_mlx *mlx)
 	return ((t_error){MRT_ERR_MLX, (void *)err});
 }
 
-t_u32	mrt_mlx_hook_setup(t_scene *scene)
+uint32_t	mrt_mlx_hook_setup(t_scene *scene)
 {
 	if (!scene)
 		return (MRT_FAIL);
@@ -62,5 +62,6 @@ t_u32	mrt_mlx_hook_setup(t_scene *scene)
 		mrt_mlx_hook_mousedown, scene);
 	mlx_on_event(scene->mlx.app, scene->mlx.win, MLX_WINDOW_EVENT, \
 		mrt_mlx_hook_win, scene);
+	mlx_loop_hook(scene->mlx.app, mrt_mlx_hook_loop, scene);
 	return (MRT_SUCCESS);
 }

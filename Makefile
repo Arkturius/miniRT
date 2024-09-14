@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/09/07 15:27:32 by rgramati         ###   ########.fr        #
+#    Updated: 2024/09/13 14:55:01 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,9 +16,26 @@
 
 NAME			=	miniRT	
 DEBUG			?=	0
-VERBOSE			=	1
+FAST			?=	0
 
-BUILD_DIR		=	build
+CC				=	gcc
+CFLAGS			= 	-Wall -Wextra -Werror
+
+COPTS			= 	-I $(INCLUDE_DIR) -I $(MLX_DIR)/$(INCLUDE_DIR)s
+LDFLAGS			=	-lSDL2 -lm
+
+ifeq ($(FAST), 1)
+	CFLAGS		+=	-O3
+endif
+
+ifeq ($(DEBUG), 1)
+	CFLAGS		+=	-gdwarf-4 -g3
+	LDFLAGS		+=	-rdynamic
+endif
+
+ifeq ($(LAZY), 1)
+	CFLAGS		=	-Wall -Wextra
+endif
 
 SRC				=	main.c						\
 					mrtlib/mrt_mem.c			\
@@ -48,10 +65,16 @@ SRC				=	main.c						\
 					render/mrt_colors.c			\
 					save/mrt_scene_file.c
 
+ifeq ($(MRT_BONUS), 1)
+	CFLAGS		+=	-DMRT_BONUS -mavx2
+	SRC			+=	parser/mrt_parse_objs_bonus.c	\
+					parser/mrt_parse_objf.c
+endif
+
 SRC_DIR			=	src
 SRC				:=	$(addprefix $(SRC_DIR)/, $(SRC))
 
-OBJ_DIR			=	$(BUILD_DIR)/obj
+OBJ_DIR			=	.obj
 OBJ				=	$(subst $(SRC_DIR)/,,$(SRC:.c=.o))
 OBJ				:=	$(addprefix $(OBJ_DIR)/, $(OBJ))
 
@@ -59,21 +82,6 @@ INCLUDE_DIR		= 	include
 
 MLX_DIR			=	third-party/MacroLibX
 MLX				=	$(MLX_DIR)/libmlx.so
-
-CC				=	gcc
-CFLAGS			= 	-Wall -Wextra -Werror -Ofast
-
-COPTS			= 	-I $(INCLUDE_DIR) -I $(MLX_DIR)/$(INCLUDE_DIR)s
-LDFLAGS			=	-lSDL2 -lm
-
-ifeq ($(DEBUG), 1)
-	CFLAGS		+=	-gdwarf-4 -g3
-	LDFLAGS		+=	-rdynamic
-endif
-
-ifeq ($(LAZY), 1)
-	CFLAGS		=	-Wall -Wextra -Ofast
-endif
 
 FILE			=	$(shell ls -lR $(SRC_DIR) | grep -F .c | wc -l)
 CMP				=	1
@@ -84,39 +92,45 @@ RM				=	rm -rf
 # Rules
 #
 
-all:		$(NAME)
+all:		art $(NAME)
+
+art:
+	echo -e $(MINIRT_ART)
+
+bonus:
+	make --no-print-directory remake MRT_BONUS=1
 
 $(NAME):	$(MLX) $(OBJ)
 	@$(CC) $(CFLAGS) $(COPTS) -o $(NAME) $(OBJ) $(MLX) $(LDFLAGS)
-	@printf "$(BOLD)   >$(GREEN) miniRT built !\n$(RESET)"
+	@echo " $(GREEN)$(BOLD)$(ITALIC)■$(RESET)  building	$(GREEN)$(BOLD)$(ITALIC)$(NAME)$(RESET)"
 
 $(MLX):
 	@make --no-print-directory -C $(MLX_DIR) -s -j all
 
 $(OBJ_DIR)/%.o:	$(SRC_DIR)/%.c
 	@mkdir -p $(@D)
-ifeq ($(VERBOSE), 1)
-	@echo "$(BOLD)  🔩 building $(RESET)$(ITALIC)$(shell echo $@ | rev | cut -d '/' -f 1 | rev)$(RESET)$(BOLD) from $(RESET)$(ITALIC)$^ ...$(RESET)"
-endif
+	@echo " $(CYAN)$(BOLD)$(ITALIC)■$(RESET)  compiling	$(GRAY)$(BOLD)$(ITALIC)$^$(RESET)"
 	@$(CC) $(CFLAGS) $(COPTS) -c $< -o $@
 
-remake:			oclean all
+remake:		oclean all
 
-clean:			oclean
-	@make --no-print-directory -C $(MLX_DIR) clean
-
-oclean:
+oclean:		art
+	echo " $(RED)$(BOLD)$(ITALIC)■$(RESET)  deleted	$(RED)$(BOLD)$(ITALIC)$(OBJ_DIR)$(RESET)"
 	$(RM) $(OBJ_DIR)
-	$(RM) $(BUILD_DIR)
 
-fclean:			clean
-	@make --no-print-directory -C $(MLX_DIR) fclean
+clean:		oclean
+	echo " $(RED)$(BOLD)$(ITALIC)■$(RESET)  cleaned	$(RED)$(BOLD)$(ITALIC)$(MLX_DIR)$(RESET)"
+	make --no-print-directory -C $(MLX_DIR) clean
+
+fclean:		clean
+	make --no-print-directory -C $(MLX_DIR) fclean
+	echo " $(RED)$(BOLD)$(ITALIC)■$(RESET)  deleted	$(RED)$(BOLD)$(ITALIC)$(NAME)$(RESET)"
 	$(RM) $(NAME)
 
 LAZY_SCENE	=	scenes/minimalist.rt
 l:
-	@make remake LAZY=1
-	@./$(NAME) $(LAZY_SCENE)
+	make remake LAZY=1
+	./$(NAME) $(LAZY_SCENE)
 
 VALGRIND_OPTS	=	--leak-check=full --track-origins=yes --show-leak-kinds=all 
 
@@ -130,8 +144,8 @@ vl:
 
 re:				fclean all
 
-.PHONY:			all clean oclean fclean remake re l
-.SILENT:		all clean oclean fclean remake re l
+.PHONY:			art all bonus clean oclean fclean remake re l vl
+.SILENT:		art all bonus clean oclean fclean remake re l vl
 
 #
 # Colors
@@ -145,9 +159,12 @@ BLUE		=	\033[34m
 MAGENTA		=	\033[35m
 CYAN		=	\033[36m
 WHITE		=	\033[37m
+GRAY		=	\033[90m
 
 BOLD		=	\033[1m
 ITALIC		=	\033[3m
 
 RESET		=	\033[0m
 LINE_CLR	=	\33[2K\r
+
+MINIRT_ART	=	'$(BOLD)$(CYAN)              _       _   ____    ______\n   ____ ___  (_)___  (_) / __ \  /_  __/\n  / __ `__ \/ / __ \/ / / /_/ /   / /   \n / / / / / / / / / / / / _, _/   / /    \n/_/ /_/ /_/_/_/ /_/_/ /_/ |_|ay /_/racer\n$(RESET)'

@@ -22,8 +22,6 @@
 #include <mrt/engine.h>
 #include <mrt/parser.h>
 
-#define SIZE(X) printf("size of %s is %zu\n", #X, sizeof(X));
-
 static void	mrt_file_clean(t_file *file)
 {
 	free(file->data);
@@ -49,7 +47,8 @@ int	main(__attribute__((unused)) int argc, char **argv)
 		mrt_scene_render(&scene);
 		mlx_loop(scene.mlx.app);
 	}
-	mrt_scene_clean(&scene);
+	mrt_obj_chunk_clean(scene.objects);
+	mrt_mlx_clean(scene.mlx);
 	mrt_error_print(err);
 	return (err.type);
 }

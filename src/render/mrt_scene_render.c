@@ -17,7 +17,9 @@
 #include <mrt/error.h>
 #include <mrt/engine.h>
 
-static t_mrt_color	mrt_scene_get_color(t_scene *scene, t_u32 x, t_u32 y)
+#ifndef MRT_BONUS
+
+static t_mrt_color	mrt_scene_get_color(t_scene *scene, uint32_t x, uint32_t y)
 {
 	static t_ray	ray[MRT_H * MRT_W] = {0};
 	const t_mrt_vec	campos = scene->config[MRT_OBJ_CAMERA].pos;
@@ -36,10 +38,22 @@ static t_mrt_color	mrt_scene_get_color(t_scene *scene, t_u32 x, t_u32 y)
 	return (this->hit.color);
 }
 
+#else
+
+static t_mrt_color	mrt_scene_get_color(t_scene *scene, uint32_t x, uint32_t y)
+{
+	(void)scene;
+	(void)x;
+	(void)y;
+	return ((t_mrt_color){.argb = 0xFFF0F0F0});
+}
+
+#endif
+
 int	mrt_scene_render(void *scene_ptr)
 {
-	t_u32		x;
-	t_u32		y;
+	uint32_t	x;
+	uint32_t	y;
 	t_scene		*scene;
 	t_mrt_color	color;
 
@@ -57,5 +71,6 @@ int	mrt_scene_render(void *scene_ptr)
 		}
 		x++;
 	}
+	scene->config[0].data[0] = 0;
 	return (MRT_SUCCESS);
 }

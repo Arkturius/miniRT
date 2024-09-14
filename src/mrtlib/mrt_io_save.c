@@ -15,18 +15,18 @@
 #include <mrtlib.h>
 #include <mrt/error.h>
 
-t_u32	mrt_io_save_array(t_s32 fd, t_io_array arr, t_bool sized)
+uint32_t	mrt_io_save_array(int32_t fd, t_io_array arr, t_bool sized)
 {
-	t_u64	bytes[2];
-	t_u64	chunk;
+	uint64_t	bytes[2];
+	uint64_t	chunk;
 
 	bytes[0] = arr.nmemb * arr.size;
 	if (bytes[0] / arr.nmemb != arr.size)
 		return (MRT_ERR_FILE_PROC);
 	if (sized)
-		chunk = (t_u64) arr.nmemb << 32 | arr.size;
+		chunk = (uint64_t) arr.nmemb << 32 | arr.size;
 	if (sized)
-		mrt_io_write(fd, (t_u8 *) &chunk, sizeof(t_u64));
+		mrt_io_write(fd, (uint8_t *) &chunk, sizeof(uint64_t));
 	bytes[1] = 0;
 	while (bytes[1] < arr.nmemb)
 	{
@@ -36,7 +36,7 @@ t_u32	mrt_io_save_array(t_s32 fd, t_io_array arr, t_bool sized)
 	return (MRT_SUCCESS);
 }
 
-t_u32	mrt_io_save_stream(t_s32 fd, const char *fmt, va_list stream)
+uint32_t	mrt_io_save_stream(int32_t fd, const char *fmt, va_list stream)
 {
 	char		*str;
 	t_io_array	arr;
@@ -48,13 +48,13 @@ t_u32	mrt_io_save_stream(t_s32 fd, const char *fmt, va_list stream)
 	while (*str)
 	{
 		if (*str == '@')
-			arr.addr = va_arg(stream, t_u8 *);
+			arr.addr = va_arg(stream, uint8_t *);
 		else if (*str == '>' && str != fmt && *(str - 1) == '@')
 			sized = MRT_TRUE;
 		else if (*str == ' ')
 		{
-			arr.nmemb = va_arg(stream, t_u32);
-			arr.size = va_arg(stream, t_u32);
+			arr.nmemb = va_arg(stream, uint32_t);
+			arr.size = va_arg(stream, uint32_t);
 			if (arr.addr && mrt_io_save_array(fd, arr, sized))
 				return (MRT_ERR_FILE_PROC);
 			sized = MRT_FALSE;
@@ -82,10 +82,10 @@ t_u32	mrt_io_save_stream(t_s32 fd, const char *fmt, va_list stream)
 * 
 * @return	MRT error code based on how things went.
 */
-t_u32	mrt_io_save(const char *filename, const char *fmt, ...)
+uint32_t	mrt_io_save(const char *filename, const char *fmt, ...)
 {
 	va_list	data;
-	t_s32	save;
+	int32_t	save;
 	t_error	err;
 
 	err.type = mrt_io_open_file(filename, &save, MRT_OPEN_WRITE);

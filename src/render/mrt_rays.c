@@ -33,7 +33,7 @@ void	mrt_ray_color(t_scene *scene, t_ray *ray)
 void	mrt_ray_cast(t_scene *scene, t_ray *ray)
 {
 	t_object	*obj;
-	t_u32		i;
+	uint32_t	i;
 
 	i = 0;
 	while (i < scene->nobj)
@@ -47,10 +47,10 @@ void	mrt_ray_cast(t_scene *scene, t_ray *ray)
 	}
 }
 
-void	mrt_ray_init(t_scene *scene, t_ray *ray, t_u32 x, t_u32 y)
+void	mrt_ray_init(t_scene *scene, t_ray *ray, uint32_t x, uint32_t y)
 {
 	const t_object	*cam = &scene->config[MRT_OBJ_CAMERA];
-	const t_u32		*fov_addr = (t_u32 *)&cam->data[MRT_OBJ_CAMERA_FOV];
+	const uint32_t	*fov_addr = (uint32_t *)&cam->data[MRT_OBJ_CAMERA_FOV];
 	const double	ratio = tan(*fov_addr * 0.5 * MRT_PI / 180);
 	const double	tr[4] = {cos(cam->norm.x), cos(cam->norm.y), \
 								sin(cam->norm.x), sin(cam->norm.y)};

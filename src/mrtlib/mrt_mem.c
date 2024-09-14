@@ -16,26 +16,26 @@
 
 void	*mrt_memcpy(void *dst, const void *src, size_t n)
 {
-	t_u8	*d8;
-	t_u8	*s8;
-	t_u64	*d64;
-	t_u64	*s64;
+	uint8_t		*d8;
+	uint8_t		*s8;
+	uint64_t	*d64;
+	uint64_t	*s64;
 
 	if (dst && src)
 	{
-		d8 = (t_u8 *) dst;
-		s8 = (t_u8 *) src;
-		while (((t_uptr)s8 & (sizeof(t_u64) - 1)) && n && n--)
+		d8 = (uint8_t *) dst;
+		s8 = (uint8_t *) src;
+		while (((uintptr_t)s8 & (sizeof(uint64_t) - 1)) && n && n--)
 			*d8++ = *s8++;
-		d64 = (t_u64 *) d8;
-		s64 = (t_u64 *) s8;
-		while (n >= sizeof(t_u64))
+		d64 = (uint64_t *) d8;
+		s64 = (uint64_t *) s8;
+		while (n >= sizeof(uint64_t))
 		{
 			*d64++ = *s64++;
-			n -= sizeof(t_u64);
+			n -= sizeof(uint64_t);
 		}
-		d8 = (t_u8 *) d64;
-		s8 = (t_u8 *) s64;
+		d8 = (uint8_t *) d64;
+		s8 = (uint8_t *) s64;
 		while (n && n--)
 			*d8++ = *s8++;
 	}
@@ -44,21 +44,21 @@ void	*mrt_memcpy(void *dst, const void *src, size_t n)
 
 void	*mrt_bzero(void *dst, size_t n)
 {
-	t_u8	*d8;
-	t_u64	*d64;
+	uint8_t		*d8;
+	uint64_t	*d64;
 
 	if (dst)
 	{
-		d8 = (t_u8 *) dst;
-		while (((t_uptr)d8 & (sizeof(t_u64) - 1)) && n && n--)
+		d8 = (uint8_t *) dst;
+		while (((uintptr_t)d8 & (sizeof(uint64_t) - 1)) && n && n--)
 			*d8++ = 0;
-		d64 = (t_u64 *) d8;
-		while (n > sizeof(t_u64))
+		d64 = (uint64_t *) d8;
+		while (n > sizeof(uint64_t))
 		{
 			*d64++ = 0;
-			n -= sizeof(t_u64);
+			n -= sizeof(uint64_t);
 		}
-		d8 = (t_u8 *) d64;
+		d8 = (uint8_t *) d64;
 		while (n && n--)
 			*d8++ = 0;
 	}

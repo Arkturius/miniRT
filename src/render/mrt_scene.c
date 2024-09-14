@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
 #include <math.h>
 
 #include <mrtlib.h>
@@ -18,19 +17,6 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 #include <mrt/engine.h>
-
-static t_u32	mrt_scene_obj_count(t_obj_chunk *chunk)
-{
-	t_u32	count;
-
-	count = 0;
-	while (chunk)
-	{
-		count += chunk->size;
-		chunk = chunk->next;
-	}
-	return (count);
-}
 
 static t_error	mrt_scene_obj_init(t_scene *scene, t_file *file)
 {
@@ -50,15 +36,50 @@ static t_error	mrt_scene_obj_init(t_scene *scene, t_file *file)
 				return (err);
 			while (*stream && mrt_isspace((unsigned char)*stream))
 				++stream;
+			scene->nobj++;
 		}
-		scene->nobj = mrt_scene_obj_count(scene->objects);
 	}
 	else
 		err.type = MRT_ERR_ALLOC;
 	return (err);
 }
 
-static void	mrt_scene_cam_init(t_scene *scene)
+#ifndef MRT_BONUS
+
+static t_error	mrt_scene_obj_config(t_scene *scene)
+{
+	t_error		err;
+	uint32_t	count;
+
+	count = 0;
+	err = (t_error){MRT_SUCCESS, (void *)__func__};
+	count += !!scene->config[MRT_OBJ_CAMERA].type;
+	count += !!scene->config[MRT_OBJ_AMBIENT].type;
+	count += !!scene->config[MRT_OBJ_LIGHT].type;
+	if (count != 3)
+		err.type = MRT_ERR_FMT_CONFIG;
+	return (err);
+}
+
+#else
+
+static t_error	mrt_scene_obj_config(t_scene *scene)
+{
+	t_error		err;
+	uint32_t	count;
+
+	count = 0;
+	err = (t_error){MRT_SUCCESS, (void *)__func__};
+	count += !!scene->config[MRT_OBJ_CAMERA].type;
+	count += !!scene->config[MRT_OBJ_AMBIENT].type;
+	if (count != 2)
+		err.type = MRT_ERR_FMT_CONFIG;
+	return (err);
+}
+
+#endif
+
+void	mrt_scene_cam_init(t_scene *scene)
 {
 	const t_mrt_vec	look = scene->config[MRT_OBJ_CAMERA].norm;
 	const double	alpha = -acos(look.z / sqrt(pow(look.x, 2.) \
@@ -66,31 +87,18 @@ static void	mrt_scene_cam_init(t_scene *scene)
 	const double	beta = atan2(look.y, look.x);
 
 	scene->config[MRT_OBJ_CAMERA].norm = \
-		(t_mrt_vec){.x = alpha, .y = beta, .z = 0, .w = 0};
-}
-
-void	mrt_scene_clean(t_scene *scene)
-{
-	mrt_obj_chunk_clean(scene->objects);
-	mrt_mlx_clean(scene->mlx);
-	(void) scene;
+		(t_mrt_vec){.x = beta, .y = alpha, .z = 0, .w = 0};
 }
 
 t_error	mrt_scene_init(t_file *file, t_scene *scene)
 {
 	t_error	err;
 
+	mrt_bzero(scene, sizeof(t_scene));
 	err = mrt_scene_obj_init(scene, file);
 	if (err.type == MRT_SUCCESS)
-	{
-		scene->map = malloc(65536 * sizeof(char));
-		if (!scene->map)
-		{
-			err.type = MRT_ERR_ALLOC;
-			return (err);
-		}
-		mrt_bzero(scene->map, 65536);
+		err = mrt_scene_obj_config(scene);
+	if (err.type == MRT_SUCCESS)
 		mrt_scene_cam_init(scene);
-	}
 	return (err);
 }

@@ -28,16 +28,16 @@
 #include <mrtlib.h>
 #include <mrt/error.h>
 
-t_u32	mrt_io_load_array(t_s32 fd, t_io_array arr, t_bool sized)
+uint32_t	mrt_io_load_array(int32_t fd, t_io_array arr, t_bool sized)
 {
-	t_u64	bytes[2];
-	t_u64	chunk;
+	uint64_t	bytes[2];
+	uint64_t	chunk;
 
 	if (!arr.addr)
 		return (MRT_ERR_FILE_PROC);
 	if (sized)
 	{
-		mrt_io_read(fd, (t_u8 *) &chunk, sizeof(t_u64));
+		mrt_io_read(fd, (uint8_t *) &chunk, sizeof(uint64_t));
 		arr.nmemb = chunk >> 32;
 		arr.size = chunk & 0xFFFFFFFF;
 	}
@@ -54,7 +54,7 @@ t_u32	mrt_io_load_array(t_s32 fd, t_io_array arr, t_bool sized)
 	return (MRT_SUCCESS);
 }
 
-t_u32	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
+uint32_t	mrt_io_load_stream(int32_t fd, const char *fmt, va_list stream)
 {
 	char		*str;
 	t_io_array	arr;
@@ -67,7 +67,7 @@ t_u32	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
 	while (*str)
 	{
 		if (*str == '&')
-			arr.addr = (t_u8 *) va_arg(stream, void **);
+			arr.addr = (uint8_t *) va_arg(stream, void **);
 		else if (*str == '<' && str != fmt && *(str - 1) == '&')
 			sized = MRT_TRUE;
 		else if (*str == ' ')
@@ -98,10 +98,10 @@ t_u32	mrt_io_load_stream(t_s32 fd, const char *fmt, va_list stream)
 * 
 * @return	MRT error code based on how things went.
 */
-t_u32	mrt_io_load(const char *filename, const char *fmt, ...)
+uint32_t	mrt_io_load(const char *filename, const char *fmt, ...)
 {
 	va_list	data;
-	t_s32	save;
+	int32_t	save;
 	t_error	err;
 
 	err.type = mrt_io_open_file(filename, &save, MRT_OPEN_READ);

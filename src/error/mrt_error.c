@@ -15,6 +15,8 @@
 #include <mrtlib.h>
 #include <mrt/error.h>
 
+#define MRT_ERR_MSG	"\033[38;2;255;0;0;1m[ERROR]\033[0m %s"
+
 t_error	mrt_error_print(t_error err)
 {
 	static char	*msgs[9] = {MRT_MSG_ALLOC, MRT_MSG_MLX, MRT_MSG_FILE_NONE,
@@ -22,6 +24,9 @@ t_error	mrt_error_print(t_error err)
 		MRT_MSG_FMT_TYPE, MRT_MSG_FMT_CONFIG, MRT_MSG_FMT_DATA};
 
 	if (err.type != MRT_SUCCESS)
-		printf("[Error] %s "MRT_MSG_DATA_FMT, msgs[err.type], (char *)err.func);
+	{
+		err.type -= MRT_ERR_ALLOC;
+		printf(MRT_ERR_MSG MRT_MSG_DATA_FMT, msgs[err.type], (char *)err.func);
+	}
 	return (err);
 }

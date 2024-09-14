@@ -21,12 +21,12 @@
 /**
  * @todo	move those functions away, maybe i need more of those
  */
-static t_u64	mrt_is_aligned(void *p, t_u32 size)
+static uint64_t	mrt_is_aligned(void *p, uint32_t size)
 {
-	return (!((t_uptr)p & (size - 1)));
+	return (!((uintptr_t)p & (size - 1)));
 }
 
-static t_u64	mrt_has_zero(t_u64 l, char c)
+static uint64_t	mrt_has_zero(uint64_t l, char c)
 {
 	l ^= (ONES * c);
 	return (((l - ONES) & ~(l) & HIGHS));
@@ -34,23 +34,23 @@ static t_u64	mrt_has_zero(t_u64 l, char c)
 
 size_t	mrt_strlen(const char *str)
 {
-	t_u8	*byte_ptr;
-	t_u64	*long_ptr;
+	uint8_t		*byte_ptr;
+	uint64_t	*long_ptr;
 
-	byte_ptr = (t_u8 *)str;
-	while (!mrt_is_aligned(byte_ptr, sizeof(t_u64)))
+	byte_ptr = (uint8_t *)str;
+	while (!mrt_is_aligned(byte_ptr, sizeof(uint64_t)))
 	{
 		if (!*byte_ptr)
-			return (byte_ptr - (t_u8 *)str);
+			return (byte_ptr - (uint8_t *)str);
 		++byte_ptr;
 	}
-	long_ptr = (t_u64 *)byte_ptr;
+	long_ptr = (uint64_t *)byte_ptr;
 	while (!mrt_has_zero(*long_ptr, 0))
 		++long_ptr;
-	byte_ptr = (t_u8 *)long_ptr;
+	byte_ptr = (uint8_t *)long_ptr;
 	while (*byte_ptr)
 		++byte_ptr;
-	return (byte_ptr - (t_u8 *)str);
+	return (byte_ptr - (uint8_t *)str);
 }
 
 int	mrt_strcmp(const char *s1, const char *s2)
@@ -67,11 +67,11 @@ int	mrt_strcmp(const char *s1, const char *s2)
 
 char	*mrt_strchr(const char *str, char c)
 {
-	t_u8	*byte_ptr;
-	t_u64	*long_ptr;
+	uint8_t		*byte_ptr;
+	uint64_t	*long_ptr;
 
-	byte_ptr = (t_u8 *)str;
-	while (*byte_ptr != c && !mrt_is_aligned(byte_ptr, sizeof(t_u64)))
+	byte_ptr = (uint8_t *)str;
+	while (*byte_ptr != c && !mrt_is_aligned(byte_ptr, sizeof(uint64_t)))
 	{
 		if (!*byte_ptr)
 			return (NULL);
@@ -79,10 +79,10 @@ char	*mrt_strchr(const char *str, char c)
 	}
 	if (*byte_ptr == c)
 		return ((char *)byte_ptr);
-	long_ptr = (t_u64 *)byte_ptr;
+	long_ptr = (uint64_t *)byte_ptr;
 	while (!mrt_has_zero(*long_ptr, 0) && !mrt_has_zero(*long_ptr, c))
 		++long_ptr;
-	byte_ptr = (t_u8 *)long_ptr;
+	byte_ptr = (uint8_t *)long_ptr;
 	while (*byte_ptr && *byte_ptr != c)
 		++byte_ptr;
 	if (!byte_ptr)
@@ -92,26 +92,26 @@ char	*mrt_strchr(const char *str, char c)
 
 char	*mrt_strrchr(const char *str, char c)
 {
-	t_u8	*byte_ptr;
-	t_u64	*long_ptr;
+	uint8_t		*byte_ptr;
+	uint64_t	*long_ptr;
 
-	byte_ptr = (t_u8 *)str + mrt_strlen(str) - 1;
-	while (*byte_ptr != c && !mrt_is_aligned(byte_ptr, sizeof(t_u64)))
+	byte_ptr = (uint8_t *)str + mrt_strlen(str) - 1;
+	while (*byte_ptr != c && !mrt_is_aligned(byte_ptr, sizeof(uint64_t)))
 	{
-		if (byte_ptr == (t_u8 *)str)
+		if (byte_ptr == (uint8_t *)str)
 			return (NULL);
 		--byte_ptr;
 	}
 	if (*byte_ptr == c)
 		return ((char *)byte_ptr);
-	long_ptr = (t_u64 *)byte_ptr;
-	while ((t_u8 *)long_ptr - (t_u8 *)str > 8 && \
+	long_ptr = (uint64_t *)byte_ptr;
+	while ((uint8_t *)long_ptr - (uint8_t *)str > 8 && \
 		!mrt_has_zero(*(long_ptr - 1), c))
 		--long_ptr;
-	byte_ptr = (t_u8 *)long_ptr;
+	byte_ptr = (uint8_t *)long_ptr;
 	while (*byte_ptr != c)
 	{
-		if (byte_ptr == (t_u8 *)str)
+		if (byte_ptr == (uint8_t *)str)
 			return (NULL);
 		--byte_ptr;
 	}

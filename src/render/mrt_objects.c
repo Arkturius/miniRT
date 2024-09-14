@@ -16,9 +16,9 @@
 #include <mrt/error.h>
 #include <mrt/engine.h>
 
-void	mrt_solve_poly(t_f32 *params, t_f32 *res)
+void	mrt_solve_poly(float *params, float *res)
 {
-	t_f32	dist;
+	float	dist;
 
 	dist = 0;
 	params[PARAM_DELTA] = powf(params[PARAM_B], 2) - \
@@ -42,13 +42,12 @@ void	mrt_solve_poly(t_f32 *params, t_f32 *res)
 	*res = dist;
 }
 
-void	mrt_ray_update(t_ray *ray, t_object *obj, t_f32 dist)
+void	mrt_ray_update(t_ray *ray, t_object *obj, float dist)
 {
 	t_mrt_vec	path;
 
 	mrt_vec_mult(ray->direction, dist, &path);
 	ray->hit = (t_hit){
-		.hit = MRT_TRUE,
 		.dist = dist,
 		.color = obj->mat.obj,
 		.obj = obj};
@@ -58,8 +57,8 @@ void	mrt_ray_update(t_ray *ray, t_object *obj, t_f32 dist)
 void	mrt_sphere_inter(t_ray *ray, t_object *obj)
 {
 	t_mrt_vec	c_to_r;
-	t_f32		params[6];
-	t_f32		dist;
+	float		params[6];
+	float		dist;
 
 	mrt_bzero(params, sizeof(params));
 	mrt_vec_sub(ray->origin, obj->pos, &c_to_r);
@@ -68,7 +67,7 @@ void	mrt_sphere_inter(t_ray *ray, t_object *obj)
 	params[PARAM_C] = mrt_vec_dot(c_to_r, c_to_r) \
 		- powf(obj->data[MRT_OBJ_SPHERE_DIAMETER] / 2., 2);
 	dist = 0;
-	mrt_solve_poly((t_f32 *)params, &dist);
+	mrt_solve_poly((float *)params, &dist);
 	if (dist > 0 && dist < ray->hit.dist)
 		mrt_ray_update(ray, obj, dist);
 }
@@ -77,8 +76,8 @@ void	mrt_plane_inter(t_ray *ray, t_object *obj)
 {
 	const t_mrt_vec	norm = obj->norm;
 	t_mrt_vec		from;
-	t_f32			d;
-	t_f32			t;
+	float			d;
+	float			t;
 
 	d = mrt_vec_dot(norm, ray->direction);
 	if (mrt_fabs(d) > MRT_EPS)

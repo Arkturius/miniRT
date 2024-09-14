@@ -10,64 +10,17 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <mrtlib.h>
-#include <mrt/error.h>
-#include <mrt/parser.h>
-#include <mrt/engine.h>
+#ifdef MRT_BONUS
 
-t_errtype
-	mrt_parse_obj_value(uint8_t *ptr, char *fmt, char *str, char **remain)
-{
-	t_errtype	err;
-
-	err = MRT_SUCCESS;
-	if (*fmt == 'v')
-		err = mrt_parse_vec((t_mrt_vec *)ptr, str, &str);
-	if (*fmt == 'f')
-		err = mrt_parse_float((float *)ptr, str, &str);
-	if (*fmt == 'i')
-		err = mrt_parse_int((int32_t *)ptr, str, &str);
-	if (*fmt == 'c')
-		err = mrt_parse_color((t_mrt_color *)ptr, str, &str);
-	if (err == MRT_SUCCESS)
-	{
-		*remain = str;
-		return (err);
-	}
-	return (MRT_ERR_FMT_DATA);
-}
-
-t_error
-	mrt_parse_obj_format(uint8_t *ptr, char *fmt, char *str, char **remain)
-{
-	int32_t		off_err;
-	uint32_t	offset;
-	t_error		err;
-
-	if (!ptr)
-		return ((t_error){MRT_ERR_FMT_DATA, (void *)__func__});
-	err = (t_error){MRT_SUCCESS, (void *)__func__};
-	while (*fmt && fmt[1] && err.type == MRT_SUCCESS)
-	{
-		offset = mrt_strtoi(fmt, &fmt, &off_err);
-		if (off_err)
-			return ((t_error){MRT_ERR_FMT_DATA, (void *)__func__});
-		while (*fmt && mrt_isspace((unsigned char)*fmt))
-			++fmt;
-		if (*fmt == '!' && mrt_strchr(MRT_FORMAT, *(fmt + 1)))
-			err.type = mrt_parse_obj_value(ptr + offset, ++fmt, str, &str);
-		++fmt;
-	}
-	*remain = str;
-	return (err);
-}
-
-#ifndef MRT_BONUS
+# include <mrtlib.h>
+# include <mrt/error.h>
+# include <mrt/parser.h>
+# include <mrt/engine.h>
 
 static t_error
 	mrt_parse_obj_type(t_objtype *type, char *str, char **remain)
 {
-	const char	*ids[7] = {"A", "C", "L", "sp", "pl", "cy", NULL};
+	const char	*ids[8] = {"A", "C", "L", "sp", "pl", "cy", "ob", NULL};
 	uint32_t	index;
 	t_error		err;
 
@@ -83,7 +36,7 @@ static t_error
 			break ;
 		++index;
 	}
-	if (index < 7)
+	if (index < 8)
 	{
 		*remain = str + 1 + (index > 3);
 		*type = (t_objtype)index;
@@ -99,24 +52,25 @@ t_error
 	t_object	*ptr;
 	t_objtype	type;
 	t_error		err;
-	static char	config[3];
-	static char	*fmts[7] = {" ", MRT_FMT_AMBIENT, MRT_FMT_CAMERA,
-		MRT_FMT_LIGHT, MRT_FMT_SPHERE, MRT_FMT_PLANE, MRT_FMT_CYLINDER};
+	static char	*fmts[8] = {" ", MRT_FMT_AMBIENT, MRT_FMT_CAMERA,
+		MRT_FMT_LIGHT, MRT_FMT_SPHERE, MRT_FMT_PLANE, MRT_FMT_CYLINDER, NULL};
 
 	err = mrt_parse_obj_type(&type, str, &str);
 	if (err.type == MRT_SUCCESS)
 	{
-		if (type < MRT_OBJ_SPHERE)
+		if (type < MRT_OBJ_LIGHT)
 		{
-			if (config[type - 1])
+			if (scene->config[type].type)
 				return ((t_error){MRT_ERR_FMT_CONFIG, (void *)__func__});
-			config[type - 1] = 1;
 			ptr = &scene->config[type];
 		}
 		else
 			ptr = mrt_obj_alloc(scene->objects, MRT_TRUE);
 		ptr->type = type;
-		err = mrt_parse_obj_format((uint8_t *)ptr, fmts[type], str, &str);
+		if (type == MRT_OBJ_OBJFILE)
+			err = mrt_parse_obj_file(scene, (uint8_t *)ptr, str, &str);
+		else
+			err = mrt_parse_obj_format((uint8_t *)ptr, fmts[type], str, &str);
 		*remain = str;
 	}
 	return (err);

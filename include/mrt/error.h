@@ -15,9 +15,6 @@
 
 # include <mrtlib.h>
 
-//TODO remove this macro
-# define MRT_END_IMPLEMENTATION	printf("STOPPED code at %s:%d in %s\n", __func__, __LINE__, __FILE__); exit(0);
-
 typedef enum e_mrt_errtype
 {
 	MRT_ERR_ALLOC = 2,
@@ -37,18 +34,19 @@ typedef struct e_mrt_error
 	void		*func;
 }	t_error;
 
-#define MRT_MSG_DATA_FMT	"< \033[38;2;128;128;128m%s\033[0m >\n"
+# define MRT_MSG_DATA_FMT	" < \033[38;2;128;128;128m%s\033[0m >\n"
 
-#define MRT_MSG_ALLOC		"Allocation failed"
-#define MRT_MSG_MLX			"Mlx initialization failed"
-#define MRT_MSG_FILE_NONE	"No such file or directory"
-#define MRT_MSG_FILE_EXTE	"Wrong file extension"
-#define MRT_MSG_FILE_PERM	"File cant be opened"
-#define MRT_MSG_FILE_PROC	"File handling failed"
-#define MRT_MSG_FMT_TYPE	"Unknown object"
-#define MRT_MSG_FMT_CONFIG	"Wrong scene configuration"
-#define MRT_MSG_FMT_DATA	"Unknown data"
+# define MRT_MSG_ALLOC		"Allocation failed"
+# define MRT_MSG_MLX		"Mlx initialization failed"
+# define MRT_MSG_FILE_NONE	"No such file or directory"
+# define MRT_MSG_FILE_EXTE	"Wrong file extension"
+# define MRT_MSG_FILE_PERM	"File cant be opened"
+# define MRT_MSG_FILE_PROC	"File handling failed"
+# define MRT_MSG_FMT_TYPE	"Unknown object"
+# define MRT_MSG_FMT_CONFIG	"Wrong scene configuration"
+# define MRT_MSG_FMT_DATA	"Unknown data"
 
-t_error	mrt_error_print(t_error type);
+t_error
+mrt_error_print(t_error type);
 
 #endif

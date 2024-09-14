@@ -12,28 +12,28 @@
 
 #include <mrtlib.h>
 
-t_f32	mrt_fabs(t_f32 f)
+float	mrt_fabs(float f)
 {
 	if (f < 0)
 		return (-f);
 	return (f);
 }
 
-t_u32	mrt_min(t_u32 a, t_u32 b)
+uint32_t	mrt_min(uint32_t a, uint32_t b)
 {
 	if (a < b)
 		return (a);
 	return (b);
 }
 
-t_u32	mrt_max(t_u32 a, t_u32 b)
+uint32_t	mrt_max(uint32_t a, uint32_t b)
 {
 	if (a >= b)
 		return (a);
 	return (b);
 }
 
-t_u32	mrt_clamp(t_u32 f, t_u32 cmin, t_u32 cmax)
+uint32_t	mrt_clamp(uint32_t f, uint32_t cmin, uint32_t cmax)
 {
 	return (mrt_min(mrt_max(f, cmin), cmax));
 }

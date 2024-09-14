@@ -4,3 +4,5 @@ third-party
 compile_commands.json
 header_fix.sh
 *.mrt
+FIXTYPES.sh
+breakme.sh

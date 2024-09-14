@@ -18,7 +18,7 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 
-static t_errtype	mrt_parse_line_join(char **dst, t_line *file, t_u32 size)
+static t_errtype	mrt_parse_line_join(char **dst, t_line *file, uint32_t size)
 {
 	t_line	*tmp;
 	char	*join;
@@ -49,7 +49,7 @@ static t_errtype	mrt_parse_line_list(t_line **list, t_file *parser)
 {
 	char	buffer[MRT_LINE_LEN - 1];
 	t_line	*line;
-	t_s32	bytes;
+	int32_t	bytes;
 
 	line = NULL;
 	while (1)
@@ -121,11 +121,11 @@ t_error	mrt_parse_file(const char *filename, t_file *parser)
 		if (!parser || !filename)
 			break ;
 		parser->filename = filename;
-		err.type = MRT_ERR_FILE_EXTE;
-		if (mrt_parse_file_extension(filename))
-			break ;
 		err.type = MRT_ERR_FILE_PERM;
 		if (mrt_io_open_file(filename, &parser->fd, MRT_OPEN_READ))
+			break ;
+		err.type = MRT_ERR_FILE_EXTE;
+		if (mrt_parse_file_extension(filename))
 			break ;
 		err.type = MRT_ERR_FILE_PROC;
 		if (mrt_parse_file_lines(parser))

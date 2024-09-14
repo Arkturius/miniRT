@@ -17,9 +17,9 @@
 #include <mrt/error.h>
 #include <mrt/parser.h>
 
-t_u32	mrt_line_count(t_line *list)
+uint32_t	mrt_line_count(t_line *list)
 {
-	t_u32	size;
+	uint32_t	size;
 
 	size = 0;
 	while (list)
@@ -42,7 +42,7 @@ void	mrt_line_clean(t_line *list)
 	}
 }
 
-t_line	*mrt_line_new(const char *str, t_u32 copy, t_u32 size)
+t_line	*mrt_line_new(const char *str, uint32_t copy, uint32_t size)
 {
 	t_line	*line;
 

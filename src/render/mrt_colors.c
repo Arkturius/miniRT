@@ -16,7 +16,7 @@
 #include <mrt/error.h>
 #include <mrt/engine.h>
 
-t_mrt_color	mrt_color_mult(t_mrt_color c, t_f32 f)
+t_mrt_color	mrt_color_mult(t_mrt_color c, float f)
 {
 	return ((t_mrt_color){
 		.a = 255,
@@ -40,7 +40,7 @@ t_mrt_color	mrt_ray_color_diffuse(t_scene *scene, t_ray *ray)
 	const t_object	*light = &scene->config[MRT_OBJ_LIGHT];
 	t_mrt_vec		lightpath;
 	t_mrt_vec		norm;
-	t_f32			dratio;
+	float			dratio;
 
 	light = &scene->config[MRT_OBJ_LIGHT];
 	lightpath = light->pos;
