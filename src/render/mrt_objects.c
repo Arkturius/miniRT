@@ -42,18 +42,6 @@ void	mrt_solve_poly(float *params, float *res)
 	*res = dist;
 }
 
-void	mrt_ray_update(t_ray *ray, t_object *obj, float dist)
-{
-	t_mrt_vec	path;
-
-	mrt_vec_mult(ray->direction, dist, &path);
-	ray->hit = (t_hit){
-		.dist = dist,
-		.color = obj->mat.obj,
-		.obj = obj};
-	mrt_vec_add(ray->origin, path, &ray->hit.point);
-}
-
 void	mrt_sphere_inter(t_ray *ray, t_object *obj)
 {
 	t_mrt_vec	c_to_r;

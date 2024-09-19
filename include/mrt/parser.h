@@ -1,20 +1,21 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parser.h                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/13 20:08:34 by rgramati          #+#    #+#             */
-/*   Updated: 2024/08/25 19:23:25 by rgramati         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+// ************************************************************************** //
+//                                                                            //
+//                                                        :::      ::::::::   //
+//   parser.h                                           :+:      :+:    :+:   //
+//                                                    +:+ +:+         +:+     //
+//   By: rgramati <rgramati@student.42angouleme.fr  +#+  +:+       +#+        //
+//                                                +#+#+#+#+#+   +#+           //
+//   Created: 2024/09/14 13:02:38 by rgramati          #+#    #+#             //
+//   Updated: 2024/09/17 15:28:24 by rgramati         ###   ########.fr       //
+//                                                                            //
+// ************************************************************************** //
 
 #ifndef PARSER_H
 # define PARSER_H
 
 # include <mrtlib.h>
 # include <mrt/error.h>
+#include <stdint.h>
 
 /* PARSED OBJS HOLDERS ****************************************************** */
 
@@ -74,10 +75,19 @@ mrt_line_count(t_line *list);
 
 /* PARSER ******************************************************************* */
 
+typedef enum e_filetype
+{
+	MRT_FILE,
+	MRT_FILE_RT,
+	MRT_FILE_CUB,
+	MRT_FILE_OBJ,
+}	t_filetype;
+
 typedef struct s_mrt_file
 {
 	const char	*filename;
 	int32_t		fd;
+	t_filetype	type;
 	char		*data;
 }	t_file;
 

@@ -35,6 +35,8 @@ t_mrt_color	mrt_ray_color_ambient(t_scene *scene)
 	return (ambi);
 }
 
+#ifndef MRT_BONUS
+
 t_mrt_color	mrt_ray_color_diffuse(t_scene *scene, t_ray *ray)
 {
 	const t_object	*light = &scene->config[MRT_OBJ_LIGHT];
@@ -42,7 +44,6 @@ t_mrt_color	mrt_ray_color_diffuse(t_scene *scene, t_ray *ray)
 	t_mrt_vec		norm;
 	float			dratio;
 
-	light = &scene->config[MRT_OBJ_LIGHT];
 	lightpath = light->pos;
 	mrt_vec_sub(light->pos, ray->hit.point, &lightpath);
 	if (ray->hit.obj->type == MRT_OBJ_SPHERE)
@@ -59,3 +60,31 @@ t_mrt_color	mrt_ray_color_diffuse(t_scene *scene, t_ray *ray)
 	dratio = fminf(light->mat.obj_r * dratio, 1.);
 	return (mrt_color_mult(ray->hit.obj->mat.obj, dratio));
 }
+
+#else
+
+t_mrt_color	mrt_ray_color_diffuse(t_scene *scene, t_ray *ray)
+{
+	const t_object	*light = &scene->lights->objs[0];
+	t_mrt_vec		lightpath;
+	t_mrt_vec		norm;
+	float			dratio;
+
+	lightpath = light->pos;
+	mrt_vec_sub(light->pos, ray->hit.point, &lightpath);
+	if (ray->hit.obj->type == MRT_OBJ_SPHERE)
+	{
+		mrt_vec_sub(ray->hit.point, ray->hit.obj->pos, &norm);
+		if (fabs(mrt_vec_dot(norm, ray->direction)) < MRT_EPS)
+			mrt_vec_mult(norm, -1., &norm);
+	}
+	if (ray->hit.obj->type == MRT_OBJ_PLANE || ray->hit.obj->type == MRT_OBJ_OBJFILE)
+		norm = ray->hit.obj->norm;
+	mrt_vec_norm(norm, &norm);
+	mrt_vec_norm(lightpath, &lightpath);
+	dratio = fmaxf(mrt_vec_dot(lightpath, norm), 0.);
+	dratio = fminf(light->mat.obj_r * dratio, 1.);
+	return (mrt_color_mult(ray->hit.obj->mat.obj, dratio));
+}
+
+#endif

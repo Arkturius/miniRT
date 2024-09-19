@@ -56,23 +56,24 @@ t_error
 		MRT_FMT_LIGHT, MRT_FMT_SPHERE, MRT_FMT_PLANE, MRT_FMT_CYLINDER, NULL};
 
 	err = mrt_parse_obj_type(&type, str, &str);
-	if (err.type == MRT_SUCCESS)
+	if (err.type != MRT_SUCCESS)
+		return (err);
+	if (type < MRT_OBJ_LIGHT)
 	{
-		if (type < MRT_OBJ_LIGHT)
-		{
-			if (scene->config[type].type)
-				return ((t_error){MRT_ERR_FMT_CONFIG, (void *)__func__});
-			ptr = &scene->config[type];
-		}
-		else
-			ptr = mrt_obj_alloc(scene->objects, MRT_TRUE);
-		ptr->type = type;
-		if (type == MRT_OBJ_OBJFILE)
-			err = mrt_parse_obj_file(scene, (uint8_t *)ptr, str, &str);
-		else
-			err = mrt_parse_obj_format((uint8_t *)ptr, fmts[type], str, &str);
-		*remain = str;
+		if (scene->config[type].type)
+			return ((t_error){MRT_ERR_FMT_CONFIG, (void *)__func__});
+		ptr = &scene->config[type];
 	}
+	else if (type == MRT_OBJ_LIGHT)
+		ptr = mrt_obj_alloc(scene->lights, MRT_TRUE);
+	else
+		ptr = mrt_obj_alloc(scene->objects, MRT_TRUE);
+	ptr->type = type;
+	if (type == MRT_OBJ_OBJFILE)
+		err = mrt_parse_obj_file(scene, (uint8_t *)ptr, str, &str);
+	else
+		err = mrt_parse_obj_format((uint8_t *)ptr, fmts[type], str, &str);
+	*remain = str;
 	return (err);
 }
 

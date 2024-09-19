@@ -6,7 +6,7 @@
 #    By: rgramati <rgramati@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/06 21:19:50 by kiroussa          #+#    #+#              #
-#    Updated: 2024/09/13 14:55:01 by rgramati         ###   ########.fr        #
+#    Updated: 2024/09/16 17:18:26 by rgramati         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -63,12 +63,14 @@ SRC				=	main.c						\
 					render/mrt_rays.c			\
 					render/mrt_objects.c		\
 					render/mrt_colors.c			\
+					render/mrt_term_color.c		\
 					save/mrt_scene_file.c
 
 ifeq ($(MRT_BONUS), 1)
 	CFLAGS		+=	-DMRT_BONUS -mavx2
 	SRC			+=	parser/mrt_parse_objs_bonus.c	\
-					parser/mrt_parse_objf.c
+					parser/mrt_parse_objf.c			\
+					render/mrt_triangles.c
 endif
 
 SRC_DIR			=	src

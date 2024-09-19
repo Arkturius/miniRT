@@ -10,11 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "mrt/parser.h"
 #include <math.h>
 
 #include <mrtlib.h>
 #include <mrt/error.h>
 #include <mrt/engine.h>
+
+void	mrt_ray_update(t_ray *ray, t_object *obj, float dist)
+{
+	t_mrt_vec	path;
+
+	mrt_vec_mult(ray->direction, dist, &path);
+	ray->hit = (t_hit){
+		.dist = dist,
+		.color = obj->mat.obj,
+		.obj = obj};
+	mrt_vec_add(ray->origin, path, &ray->hit.point);
+}
 
 void	mrt_ray_color(t_scene *scene, t_ray *ray)
 {
@@ -29,6 +42,8 @@ void	mrt_ray_color(t_scene *scene, t_ray *ray)
 		.g = mrt_clamp(ambi.g + diff.g, 0, 255),
 		.b = mrt_clamp(ambi.b + diff.b, 0, 255)};
 }
+
+#ifndef MRT_BONUS
 
 void	mrt_ray_cast(t_scene *scene, t_ray *ray)
 {
@@ -46,6 +61,35 @@ void	mrt_ray_cast(t_scene *scene, t_ray *ray)
 		i++;
 	}
 }
+
+#else
+
+void	mrt_ray_cast(t_scene *scene, t_ray *ray)
+{
+	static t_tbuffer	*triangles = NULL;
+	static t_pbuffer	*points = NULL;
+	t_object			*obj;
+	uint32_t			i;
+
+	i = 0;
+	if (!triangles)
+		triangles = scene->triangles;
+	if (!points)
+		points = scene->points;
+	while (i < scene->nobj)
+	{
+		obj = &scene->objects->objs[i];
+		if (obj->type == MRT_OBJ_SPHERE)
+			mrt_sphere_inter(ray, obj);
+		if (obj->type == MRT_OBJ_PLANE)
+			mrt_plane_inter(ray, obj);
+		if (obj->type == MRT_OBJ_OBJFILE)
+			mrt_obj_inter(ray, obj, points, triangles);
+		i++;
+	}
+}
+
+#endif
 
 void	mrt_ray_init(t_scene *scene, t_ray *ray, uint32_t x, uint32_t y)
 {

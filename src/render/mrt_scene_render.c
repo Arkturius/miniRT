@@ -16,8 +16,9 @@
 #include <mrtlib.h>
 #include <mrt/error.h>
 #include <mrt/engine.h>
+#include <stdint.h>
 
-#ifndef MRT_BONUS
+// #ifndef MRT_BONUS
 
 static t_mrt_color	mrt_scene_get_color(t_scene *scene, uint32_t x, uint32_t y)
 {
@@ -32,23 +33,54 @@ static t_mrt_color	mrt_scene_get_color(t_scene *scene, uint32_t x, uint32_t y)
 	this->origin = campos;
 	this->hit.obj = NULL;
 	this->hit.dist = INFINITY;
+	this->hit.color.argb = 0;
 	mrt_ray_cast(scene, this);
 	if (this->hit.obj)
 		mrt_ray_color(scene, this);
 	return (this->hit.color);
 }
 
-#else
+// #else
 
-static t_mrt_color	mrt_scene_get_color(t_scene *scene, uint32_t x, uint32_t y)
+// static t_mrt_color	mrt_scene_get_color(t_scene *scene, uint32_t x, uint32_t y)
+// {
+// 	(void)scene;
+// 	(void)x;
+// 	(void)y;
+// 	return ((t_mrt_color){.argb = 0xFFF0F0F0});
+// }
+
+// #endif
+
+int mrt_scene_term_render(void *scene_ptr)
 {
-	(void)scene;
-	(void)x;
-	(void)y;
-	return ((t_mrt_color){.argb = 0xFFF0F0F0});
-}
+	uint32_t		x;
+	uint32_t		y;
+	t_scene			*scene;
+	t_mrt_color		color[2] = {0};
+	static char		buffer[65536] = {0};
+	char			*tmp;
 
-#endif
+	scene = (t_scene *)scene_ptr;
+	y = 0;
+	while (y < MRT_H)
+	{
+		mrt_bzero(buffer, sizeof(buffer));
+		tmp = (char *)buffer;
+		x = 0;
+		while (x < MRT_W)
+		{
+			color[0] = mrt_scene_get_color(scene, x, (MRT_H - y - 1));
+			color[1] = mrt_scene_get_color(scene, x, (MRT_H - y - 2));
+			append_block(color[0].argb, color[1].argb, tmp, &tmp);
+			x++;
+		}
+		y += 2;
+		printf("%s\n", buffer);
+	}
+	// printf("\033[0;0H%s", buffer);
+	return (MRT_SUCCESS);
+}
 
 int	mrt_scene_render(void *scene_ptr)
 {

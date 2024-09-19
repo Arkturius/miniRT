@@ -16,8 +16,8 @@
 # include <mrtlib.h>
 # include <mrt/parser.h>
 
-# define MRT_H		900
-# define MRT_W		1600
+# define MRT_H		118
+# define MRT_W		213
 
 # define MRT_PI		3.141592
 # define MRT_EPS	1e-5
@@ -167,6 +167,7 @@ typedef struct s_mrt_scene
 	uint32_t	nobj;
 	uint32_t	nlig;
 	t_object	config[4];
+	t_obj_chunk	*lights;
 	t_obj_chunk	*objects;
 	t_tbuffer	*triangles;
 	t_pbuffer	*points;
@@ -215,15 +216,31 @@ void
 mrt_ray_color(t_scene *scene, t_ray *ray);
 
 void
+mrt_ray_update(t_ray *ray, t_object *obj, float dist);
+
+void
 mrt_sphere_inter(t_ray *ray, t_object *obj);
 
 void
 mrt_plane_inter(t_ray *ray, t_object *obj);
+
+# ifdef MRT_BONUS
+
+void
+mrt_obj_inter(t_ray *ray, t_object *obj, t_pbuffer *p, t_tbuffer *t);
+
+# endif
 
 t_mrt_color
 mrt_ray_color_ambient(t_scene *scene);
 
 t_mrt_color
 mrt_ray_color_diffuse(t_scene *scene, t_ray *ray);
+
+void
+append_block(uint32_t bg, uint32_t fg, char *buf, char **remain);
+
+int
+mrt_scene_term_render(void *scene_ptr);
 
 #endif

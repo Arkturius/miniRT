@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "mrtlib.h"
+#include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -95,16 +96,23 @@ static t_errtype	mrt_parse_file_lines(t_file *parser)
  * 			2nd parameter to check extension
  * 			support different type of files for miniRT
  */
-static t_errtype	mrt_parse_file_extension(const char *filename)
+static t_errtype	mrt_parse_file_extension(const char *filename, uint32_t *type)
 {
-	char	*point;
+	char		*point;
 
+	*type = 0;
 	while (1)
 	{
 		point = mrt_strrchr(filename, '.');
 		if (!point)
 			break ;
-		if (mrt_strcmp(point, ".rt"))
+		if (!mrt_strcmp(point, ".rt"))
+			*type = MRT_FILE_RT;
+		if (!mrt_strcmp(point, ".cub"))
+			*type = MRT_FILE_CUB;
+		if (!mrt_strcmp(point, ".obj"))
+			*type = MRT_FILE_OBJ;
+		if (*type == MRT_FILE)
 			break ;
 		return (MRT_SUCCESS);
 	}
@@ -125,7 +133,7 @@ t_error	mrt_parse_file(const char *filename, t_file *parser)
 		if (mrt_io_open_file(filename, &parser->fd, MRT_OPEN_READ))
 			break ;
 		err.type = MRT_ERR_FILE_EXTE;
-		if (mrt_parse_file_extension(filename))
+		if (mrt_parse_file_extension(filename, &parser->type))
 			break ;
 		err.type = MRT_ERR_FILE_PROC;
 		if (mrt_parse_file_lines(parser))
